@@ -45,7 +45,22 @@ int main(int argc, char **argv) {
 	//metto in ascolto il socket(sd,lunghezzaCoda);
 	listen(socketDescriptor,1);
 
-
+    int i, j;
+    
+    char m[9][9];
+    for(i=0; i<8; i++){
+            for(j=0; j<8; j++){
+                m[i][j] = 'I';
+                printf("%c ", m[i][j]);
+                if(j==8){
+                    m[i][j] = 'i';
+                }
+            }
+            printf("\n");
+    }
+    
+    
+    
 	while(1){
 		//accetto connessioni
 		int lunghezzaClient;
@@ -73,6 +88,8 @@ int main(int argc, char **argv) {
 			read(clientConnectionDescriptor,buffer,sizeof(buffer));
 			printf("-[%s]Messaggio ricevuto: %s\n",inet_ntoa(indirizzoClient.sin_addr),buffer);
 			printf("Attendo altre richieste...\n");
+
+            write(clientConnectionDescriptor, m, 1000); //#######
 
 			exit(0);
 		 }
