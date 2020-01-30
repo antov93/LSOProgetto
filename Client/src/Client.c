@@ -30,7 +30,7 @@ int main(void) {
 	//struttura alla quale mi connetto(il server cioè)
 	serverDescriptor.sin_family=AF_INET;
 	serverDescriptor.sin_port=htons(PORTA);
-	inet_aton("192.168.1.7", &serverDescriptor.sin_addr);
+	inet_aton("192.168.137.178", &serverDescriptor.sin_addr);
 
 	//creo un socket locale per il client
 	socketClientDescriptor=socket(AF_INET,SOCK_STREAM,0);
@@ -46,7 +46,21 @@ int main(void) {
 	scanf("%s",messaggio);
 
 	write(socketClientDescriptor,messaggio,sizeof(messaggio));
+//----------------------------------------------------------
+    int i;
 
+    char buffer[81];
+	read(socketClientDescriptor,buffer,sizeof(buffer));
+    printf("-[]Messaggio ricevuto: \n");
+       
+    for(i=0; i<81; i++){
+        if(buffer[i] == 'i'){
+            printf("\n");     
+        }else{
+                printf("%c ", buffer[i]);
+              }
+    }
+//----------------------------------------------------------
 	close(socketClientDescriptor);
 
 
