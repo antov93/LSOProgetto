@@ -7,7 +7,7 @@
  Description : Uso dei Socket TCP in C
  ============================================================================
  */
-
+//comestai
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
