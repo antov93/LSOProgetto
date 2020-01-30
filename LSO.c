@@ -5,19 +5,19 @@
 
 //commento###############################
 
-void generazione(int m[][MAX]);
-void stampa(int m[][MAX]);
-void ostacoli(int m[][MAX]);
-void personaggiopacchetto(int m[][MAX]);
-int preso(int m[][MAX]);
-int ipos(int m[][MAX]);
-int jpos(int m[][MAX]);
+void generazione(char m[][MAX]);
+void stampa(char m[][MAX]);
+void ostacoli(char m[][MAX]);
+void personaggiopacchetto(char m[][MAX]);
+int preso(char m[][MAX]);
+int ipos(char m[][MAX]);
+int jpos(char m[][MAX]);
 
 int main(){
 	
 	int i;
 	int j;
-	int m[MAX][MAX];
+	char m[MAX][MAX];
 	char scelta;
 	int flag = 0;
 	
@@ -29,7 +29,7 @@ int main(){
 
 	stampa(m);
 
-	while(m[MAX-1][MAX-1] != 89){
+	while(m[MAX-1][MAX-1] != 'P'){
 
         printf("\nUtilizzare WASD per muovere il personaggio all'interno del labirinto.\n");
 
@@ -40,18 +40,18 @@ int main(){
 				i = ipos(m);
 				j = jpos(m);
 				flag = preso(m);
-				if(m[i][j-1] != 0 && m[i][j-1] != 8){
+				if(m[i][j-1] != 'O' && m[i][j-1] != 'V'){
 					if(flag == 0){
-						m[i][j] = 1;
-						m[i][j-1] = 9;
+						m[i][j] = 'I';
+						m[i][j-1] = 'A';
 					}else{
-						m[i][j] = 1;
-						m[i][j-1] = 89; 				
+						m[i][j] = 'I';
+						m[i][j-1] = 'P'; 				
 					}
 					
-				}else if(m[i][j-1] == 8){
-					m[i][j] = 1;
-					m[i][j-1] = 89;					
+				}else if(m[i][j-1] == 'V'){
+					m[i][j] = 'I';
+					m[i][j-1] = 'P';					
 				}
 				stampa(m);
             break;
@@ -60,17 +60,17 @@ int main(){
 				i = ipos(m);
 				j = jpos(m);
 				flag = preso(m);
-				if(m[i][j+1] != 0 && m[i][j+1] != 8){
+				if(m[i][j+1] != 'O' && m[i][j+1] != 'V'){
 					if(flag == 0){
-						m[i][j] = 1;
-						m[i][j+1] = 9;
+						m[i][j] = 'I';
+						m[i][j+1] = 'A';
 					}else{
-						m[i][j] = 1;
-						m[i][j+1] = 89; 				
+						m[i][j] = 'I';
+						m[i][j+1] = 'P'; 				
 					}
-				}else if(m[i][j+1] == 8){
-					m[i][j] = 1;
-					m[i][j+1] = 89;					
+				}else if(m[i][j+1] == 'V'){
+					m[i][j] = 'I';
+					m[i][j+1] = 'P';					
 				}
 				stampa(m);
             break;
@@ -79,17 +79,17 @@ int main(){
 				i = ipos(m);
 				j = jpos(m);
 				flag = preso(m);
-				if(m[i-1][j] != 0 && m[i-1][j] != 8){
+				if(m[i-1][j] != 'O' && m[i-1][j] != 'V'){
 					if(flag == 0){
-						m[i][j] = 1;
-						m[i-1][j] = 9;
+						m[i][j] = 'I';
+						m[i-1][j] = 'A';
 					}else{
-						m[i][j] = 1;
-						m[i-1][j] = 89; 				
+						m[i][j] = 'I';
+						m[i-1][j] = 'P'; 				
 					}
-				}else if(m[i-1][j] == 8){
-					m[i][j] = 1;
-					m[i-1][j] = 89;					
+				}else if(m[i-1][j] == 'V'){
+					m[i][j] = 'I';
+					m[i-1][j] = 'P';					
 				}
 				stampa(m);
             break;
@@ -98,17 +98,17 @@ int main(){
 				i = ipos(m);
 				j = jpos(m);
 				flag = preso(m);
-				if(m[i+1][j] != 0 && m[i+1][j] != 8){
+				if(m[i+1][j] != 'O' && m[i+1][j] != 'V'){
 					if(flag == 0){
-						m[i][j] = 1;
-						m[i+1][j] = 9;
+						m[i][j] = 'I';
+						m[i+1][j] = 'A';
 					}else{
-						m[i][j] = 1;
-						m[i+1][j] = 89; 				
+						m[i][j] = 'I';
+						m[i+1][j] = 'P'; 				
 					}
-				}else if(m[i+1][j] == 8){
-					m[i][j] = 1;
-					m[i+1][j] = 89;					
+				}else if(m[i+1][j] == 'V'){
+					m[i][j] = 'I';
+					m[i+1][j] = 'P';					
 				}
 				stampa(m);
             break;
@@ -116,18 +116,18 @@ int main(){
 				i = ipos(m);
 				j = jpos(m);
 				flag = preso(m);
-				if(m[i][j-1] != 0 && m[i][j-1] != 8){
+				if(m[i][j-1] != 'O' && m[i][j-1] != 'V'){
 					if(flag == 0){
-						m[i][j] = 1;
-						m[i][j-1] = 9;
+						m[i][j] = 'I';
+						m[i][j-1] = 'A';
 					}else{
-						m[i][j] = 1;
-						m[i][j-1] = 89; 				
+						m[i][j] = 'I';
+						m[i][j-1] = 'P'; 				
 					}
 					
-				}else if(m[i][j-1] == 8){
-					m[i][j] = 1;
-					m[i][j-1] = 89;					
+				}else if(m[i][j-1] == 'V'){
+					m[i][j] = 'I';
+					m[i][j-1] = 'P';					
 				}
 				stampa(m);
             break;
@@ -136,17 +136,17 @@ int main(){
 				i = ipos(m);
 				j = jpos(m);
 				flag = preso(m);
-				if(m[i][j+1] != 0 && m[i][j+1] != 8){
+				if(m[i][j+1] != 'O' && m[i][j+1] != 'V'){
 					if(flag == 0){
-						m[i][j] = 1;
-						m[i][j+1] = 9;
+						m[i][j] = 'I';
+						m[i][j+1] = 'A';
 					}else{
-						m[i][j] = 1;
-						m[i][j+1] = 89; 				
+						m[i][j] = 'I';
+						m[i][j+1] = 'P'; 				
 					}
-				}else if(m[i][j+1] == 8){
-					m[i][j] = 1;
-					m[i][j+1] = 89;					
+				}else if(m[i][j+1] == 'V'){
+					m[i][j] = 'I';
+					m[i][j+1] = 'P';					
 				}
 				stampa(m);
             break;
@@ -155,17 +155,17 @@ int main(){
 				i = ipos(m);
 				j = jpos(m);
 				flag = preso(m);
-				if(m[i-1][j] != 0 && m[i-1][j] != 8){
+				if(m[i-1][j] != 'O' && m[i-1][j] != 'V'){
 					if(flag == 0){
-						m[i][j] = 1;
-						m[i-1][j] = 9;
+						m[i][j] = 'I';
+						m[i-1][j] = 'A';
 					}else{
-						m[i][j] = 1;
-						m[i-1][j] = 89; 				
+						m[i][j] = 'I';
+						m[i-1][j] = 'P'; 				
 					}
-				}else if(m[i-1][j] == 8){
-					m[i][j] = 1;
-					m[i-1][j] = 89;					
+				}else if(m[i-1][j] == 'V'){
+					m[i][j] = 'I';
+					m[i-1][j] = 'P';					
 				}
 				stampa(m);
             break;
@@ -174,17 +174,17 @@ int main(){
 				i = ipos(m);
 				j = jpos(m);
 				flag = preso(m);
-				if(m[i+1][j] != 0 && m[i+1][j] != 8){
+				if(m[i+1][j] != 'O' && m[i+1][j] != 'V'){
 					if(flag == 0){
-						m[i][j] = 1;
-						m[i+1][j] = 9;
+						m[i][j] = 'I';
+						m[i+1][j] = 'A';
 					}else{
-						m[i][j] = 1;
-						m[i+1][j] = 89; 				
+						m[i][j] = 'I';
+						m[i+1][j] = 'P'; 				
 					}
-				}else if(m[i+1][j] == 8){
-					m[i][j] = 1;
-					m[i+1][j] = 89;					
+				}else if(m[i+1][j] == 'V'){
+					m[i][j] = 'I';
+					m[i+1][j] = 'P';					
 				}
 				stampa(m);
             break;
@@ -203,21 +203,21 @@ printf("\nHAI CONCLUSO LA PARTITA, COMPLIMENTI!\n");
 	
 
 
-void generazione(int m[][MAX]){
+void generazione(char m[][MAX]){
 
 	int i;
 	int j;
 
 	for(i=0; i<MAX; i++){
 		for(j=0; j<MAX; j++){
-			m[i][j] = 1;
+			m[i][j] = 'I';
 
 			}
 		}
 
 }
 
-void ostacoli(int m[][MAX]){
+void ostacoli(char m[][MAX]){
 	int i;
 	int j;
 	int cont = 0;
@@ -229,16 +229,16 @@ void ostacoli(int m[][MAX]){
 		i=rand()%(MAX-1)+0;
 		j=rand()%(MAX-1)+0;
 	
-		if(m[i][j] == 1){
-			m[i][j] = 0;
+		if(m[i][j] == 'I'){
+			m[i][j] = 'O';
 			cont++;
 		}
 	}
 
-	m[MAX-1][MAX-1] = 7;
+	m[MAX-1][MAX-1] = 'E';
 }
 
-void personaggiopacchetto(int m[][MAX]){
+void personaggiopacchetto(char m[][MAX]){
 	
 	int i;
 	int j;	
@@ -249,8 +249,8 @@ void personaggiopacchetto(int m[][MAX]){
 		i=rand()%(MAX-1)+0;
 		j=rand()%(MAX-1)+0;
 	
-		if(m[i][j] == 1){
-			m[i][j] = 9;
+		if(m[i][j] == 'I'){
+			m[i][j] = 'A';
 			cont++;
 		}
 	}
@@ -261,8 +261,8 @@ void personaggiopacchetto(int m[][MAX]){
 		i=rand()%(MAX-1)+0;
 		j=rand()%(MAX-1)+0;
 	
-		if(m[i][j] == 1){
-			m[i][j] = 8;
+		if(m[i][j] == 'I'){
+			m[i][j] = 'V';
 			cont++;
 		}
 	}
@@ -270,13 +270,13 @@ void personaggiopacchetto(int m[][MAX]){
 	
 }
 
-int ipos(int m[][MAX]){
+int ipos(char m[][MAX]){
 	int i;
 	int j;
 
 	for(i=0; i<MAX; i++){
 		for(j=0; i<MAX; j++){
-			if(m[i][j] == 9 || m[i][j] == 89){
+			if(m[i][j] == 'A' || m[i][j] == 'P'){
 				return i;			
 			}
 
@@ -285,13 +285,13 @@ int ipos(int m[][MAX]){
 }
 
 
-int jpos(int m[][MAX]){
+int jpos(char m[][MAX]){
 	int i;
 	int j;
 
 	for(i=0; i<MAX; i++){
 		for(j=0; i<MAX; j++){
-			if(m[i][j] == 9 || m[i][j] == 89){
+			if(m[i][j] == 'A' || m[i][j] == 'P'){
 				return j;			
 			}
 
@@ -299,16 +299,16 @@ int jpos(int m[][MAX]){
 }
 }
 
-int preso(int m[][MAX]){
+int preso(char m[][MAX]){
 
 	int i;
 	int j;
 
 	for(i=0; i<MAX; i++){
 		for(j=0; i<MAX; j++){
-			if(m[i][j] == 8){
+			if(m[i][j] == 'V'){
 				return 0;			
-			}else if(m[i][j] == 89){
+			}else if(m[i][j] == 'P'){
 				return 1;
 			}
 	
@@ -316,14 +316,14 @@ int preso(int m[][MAX]){
 }
 }
  
-void stampa(int m[][MAX]){
+void stampa(char m[][MAX]){
 
 	int i;
 	int j;
 
 	for(i=0; i<MAX; i++){
 		for(j=0; j<MAX; j++){
-			printf("%d   ", m[i][j]);
+			printf("%c   ", m[i][j]);
 
 			}
 			printf("\n");
