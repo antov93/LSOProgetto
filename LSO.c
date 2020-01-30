@@ -3,6 +3,8 @@
 
 #define MAX 10
 
+//commento###############################
+
 void generazione(int m[][MAX]);
 void stampa(int m[][MAX]);
 void ostacoli(int m[][MAX]);
