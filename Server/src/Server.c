@@ -1,7 +1,7 @@
 /*
  ============================================================================
  Name        : Server.c
- Author      : Antonio Vanacore
+ Author      : Antonio Vanacore & Valerio Panzera
  Version     :
  Copyright   : Your copyright notice
  Description : Uso dei Socket TCP in C
@@ -40,8 +40,9 @@ int main(int argc, char **argv) {
 	char m[MAX][MAX];//campo
 	char scelta;
 	int flag = 0; //flag controllo pacchetto
-    int k=0; //indice buffer
-
+    //int k=0; //indice buffer
+    char buffer[1000];
+    
 	//creo il socket
 	socketDescriptor=socket(AF_INET,SOCK_STREAM,0);//creo il socket(famiglia,tipo,protocollo(zero per protocollo migliore disp))
 	if(socketDescriptor<0)perror("Errore creazione del socket!"),exit(1);
@@ -59,14 +60,6 @@ int main(int argc, char **argv) {
 	//metto in ascolto il socket(sd,lunghezzaCoda);
 	listen(socketDescriptor,1);
     
-
-    //inizializzazione campo
-    generazione(m);
-	ostacoli(m);
-	personaggiopacchetto(m);
-
-    printf("Bisogna muoversi nel labirinto, prendere il pacchetto ed uscire per completare il gioco.\n\nLegenda: \nA-personaggio\nE-Uscita\nI-Spazio libero\nO-Ostacolo\nP-Pacchetto preso\n");
-    char buffer[1000];
 	while(1 && m[MAX-1][MAX-1] != 'P'){
 		//accetto connessioni
 		int lunghezzaClient;
@@ -85,192 +78,230 @@ int main(int argc, char **argv) {
 			perror("Errore nella FORK:");
 			exit(0);
 		}else if(pid==0){//questo è quello che fa il processo figlio
+			 
+			//inizializzazione campo
+			    generazione(m);
+				ostacoli(m);
+				personaggiopacchetto(m);
+				
+				
 			close(socketDescriptor); //lavora solo con clientConnectionDescriptor
 
-			printf("*Nuova connessione dal client: %s\n",inet_ntoa(indirizzoClient.sin_addr));
-			printf("In attesta di ricezione di un messaggio...\n");
-            printf("\nUtilizzare WASD per muovere il personaggio all'interno del labirinto.\n");
-            stampa(m);
-
+			printf("**Nuova connessione dal client: %s\n",inet_ntoa(indirizzoClient.sin_addr));
 			
-			read(clientConnectionDescriptor,buffer,sizeof(buffer));
-
-            printf("-[%s]Messaggio ricevuto: %s\n",inet_ntoa(indirizzoClient.sin_addr),buffer);
-            
-            scelta = buffer[k];
-            printf("il buffer è %c\n", buffer[k]);
-            
-
-		switch(scelta){
-			case 'A':
-				i = ipos(m);
-				j = jpos(m);
-				flag = preso(m);
-				if(m[i][j-1] != 'O' && m[i][j-1] != 'V'){
-					if(flag == 0){
-						m[i][j] = 'I';
-						m[i][j-1] = 'A';
-					}else{
-						m[i][j] = 'I';
-						m[i][j-1] = 'P'; 				
-					}
-					
-				}else if(m[i][j-1] == 'V'){
-					m[i][j] = 'I';
-					m[i][j-1] = 'P';					
-				}
-				stampa(m);
-            break;
-            
-            case 'D':
-				i = ipos(m);
-				j = jpos(m);
-				flag = preso(m);
-				if(m[i][j+1] != 'O' && m[i][j+1] != 'V'){
-					if(flag == 0){
-						m[i][j] = 'I';
-						m[i][j+1] = 'A';
-					}else{
-						m[i][j] = 'I';
-						m[i][j+1] = 'P'; 				
-					}
-				}else if(m[i][j+1] == 'V'){
-					m[i][j] = 'I';
-					m[i][j+1] = 'P';					
-				}
-				stampa(m);
-            break;
-
-	    case 'W':
-				i = ipos(m);
-				j = jpos(m);
-				flag = preso(m);
-				if(m[i-1][j] != 'O' && m[i-1][j] != 'V'){
-					if(flag == 0){
-						m[i][j] = 'I';
-						m[i-1][j] = 'A';
-					}else{
-						m[i][j] = 'I';
-						m[i-1][j] = 'P'; 				
-					}
-				}else if(m[i-1][j] == 'V'){
-					m[i][j] = 'I';
-					m[i-1][j] = 'P';					
-				}
-				stampa(m);
-            break;
-
-	    case 'S':
-				i = ipos(m);
-				j = jpos(m);
-				flag = preso(m);
-				if(m[i+1][j] != 'O' && m[i+1][j] != 'V'){
-					if(flag == 0){
-						m[i][j] = 'I';
-						m[i+1][j] = 'A';
-					}else{
-						m[i][j] = 'I';
-						m[i+1][j] = 'P'; 				
-					}
-				}else if(m[i+1][j] == 'V'){
-					m[i][j] = 'I';
-					m[i+1][j] = 'P';					
-				}
-				stampa(m);
-            break;
-				case 'a':
-				i = ipos(m);
-				j = jpos(m);
-				flag = preso(m);
-				if(m[i][j-1] != 'O' && m[i][j-1] != 'V'){
-					if(flag == 0){
-						m[i][j] = 'I';
-						m[i][j-1] = 'A';
-					}else{
-						m[i][j] = 'I';
-						m[i][j-1] = 'P'; 				
-					}
-					
-				}else if(m[i][j-1] == 'V'){
-					m[i][j] = 'I';
-					m[i][j-1] = 'P';					
-				}
-				stampa(m);
-            break;
-            
-            case 'd':
-				i = ipos(m);
-				j = jpos(m);
-				flag = preso(m);
-				if(m[i][j+1] != 'O' && m[i][j+1] != 'V'){
-					if(flag == 0){
-						m[i][j] = 'I';
-						m[i][j+1] = 'A';
-					}else{
-						m[i][j] = 'I';
-						m[i][j+1] = 'P'; 				
-					}
-				}else if(m[i][j+1] == 'V'){
-					m[i][j] = 'I';
-					m[i][j+1] = 'P';					
-				}
-				stampa(m);
-            break;
-
-	    case 'w':
-				i = ipos(m);
-				j = jpos(m);
-				flag = preso(m);
-				if(m[i-1][j] != 'O' && m[i-1][j] != 'V'){
-					if(flag == 0){
-						m[i][j] = 'I';
-						m[i-1][j] = 'A';
-					}else{
-						m[i][j] = 'I';
-						m[i-1][j] = 'P'; 				
-					}
-				}else if(m[i-1][j] == 'V'){
-					m[i][j] = 'I';
-					m[i-1][j] = 'P';					
-				}
-				stampa(m);
-            break;
-
-	    case 's':
-				i = ipos(m);
-				j = jpos(m);
-				flag = preso(m);
-				if(m[i+1][j] != 'O' && m[i+1][j] != 'V'){
-					if(flag == 0){
-						m[i][j] = 'I';
-						m[i+1][j] = 'A';
-					}else{
-						m[i][j] = 'I';
-						m[i+1][j] = 'P'; 				
-					}
-				}else if(m[i+1][j] == 'V'){
-					m[i][j] = 'I';
-					m[i+1][j] = 'P';					
-				}
-				stampa(m);
-            break;
+            //stampa(m);
+            //dopo la connessione con il client invio subito il quadro di gioco
+			write(clientConnectionDescriptor, m, 1000);
+            printf("In attesta di ricezione di un messaggio...\n");
 			
-				}//fine switch
-
-	    			
-			printf("Attendo altre richieste...\n");
-
-            write(clientConnectionDescriptor, m, 1000); //#######
-
-            memset(buffer, 0, sizeof(buffer));
-
-			exit(0);
-		 }
-
+            int partitaFinita=0;
+            
+            while(partitaFinita==0){
+            	
+				//poi dopo aspetto di leggere il porssimo comando
+				read(clientConnectionDescriptor,buffer,sizeof(buffer));
+				printf("-[%s]Messaggio ricevuto: %s\n",inet_ntoa(indirizzoClient.sin_addr),buffer);
+				
+				
+				scelta = buffer[0];
+				printf("il buffer/comando inviato è %c\n", buffer[0]);
+				
+					switch(scelta){
+						case 'A':
+							i = ipos(m);
+							j = jpos(m);
+							flag = preso(m);
+							if(m[i][j-1] != 'O' && m[i][j-1] != 'V'){
+								if(flag == 0){
+									m[i][j] = 'I';
+									m[i][j-1] = 'A';
+								}else{
+									m[i][j] = 'I';
+									m[i][j-1] = 'P'; 				
+								}
+								
+							}else if(m[i][j-1] == 'V'){
+								m[i][j] = 'I';
+								m[i][j-1] = 'P';					
+							}
+							//stampa(m);
+							write(clientConnectionDescriptor, m, 1000);
+						break;
+						
+						case 'D':
+							i = ipos(m);
+							j = jpos(m);
+							flag = preso(m);
+							if(m[i][j+1] != 'O' && m[i][j+1] != 'V'){
+								if(flag == 0){
+									m[i][j] = 'I';
+									m[i][j+1] = 'A';
+								}else{
+									m[i][j] = 'I';
+									m[i][j+1] = 'P'; 				
+								}
+							}else if(m[i][j+1] == 'V'){
+								m[i][j] = 'I';
+								m[i][j+1] = 'P';					
+							}
+							//stampa(m);
+							write(clientConnectionDescriptor, m, 1000);
+						break;
+			
+					case 'W':
+							i = ipos(m);
+							j = jpos(m);
+							flag = preso(m);
+							if(m[i-1][j] != 'O' && m[i-1][j] != 'V'){
+								if(flag == 0){
+									m[i][j] = 'I';
+									m[i-1][j] = 'A';
+								}else{
+									m[i][j] = 'I';
+									m[i-1][j] = 'P'; 				
+								}
+							}else if(m[i-1][j] == 'V'){
+								m[i][j] = 'I';
+								m[i-1][j] = 'P';					
+							}
+							//stampa(m);
+							write(clientConnectionDescriptor, m, 1000);
+						break;
+			
+					case 'S':
+							i = ipos(m);
+							j = jpos(m);
+							flag = preso(m);
+							if(m[i+1][j] != 'O' && m[i+1][j] != 'V'){
+								if(flag == 0){
+									m[i][j] = 'I';
+									m[i+1][j] = 'A';
+								}else{
+									m[i][j] = 'I';
+									m[i+1][j] = 'P'; 				
+								}
+							}else if(m[i+1][j] == 'V'){
+								m[i][j] = 'I';
+								m[i+1][j] = 'P';					
+							}
+							write(clientConnectionDescriptor, m, 1000);
+							//stampa(m);
+						break;
+							case 'a':
+							i = ipos(m);
+							j = jpos(m);
+							flag = preso(m);
+							if(m[i][j-1] != 'O' && m[i][j-1] != 'V'){
+								if(flag == 0){
+									m[i][j] = 'I';
+									m[i][j-1] = 'A';
+								}else{
+									m[i][j] = 'I';
+									m[i][j-1] = 'P'; 				
+								}
+								
+							}else if(m[i][j-1] == 'V'){
+								m[i][j] = 'I';
+								m[i][j-1] = 'P';					
+							}
+							write(clientConnectionDescriptor, m, 1000);
+							//stampa(m);
+						break;
+						
+						case 'd':
+							i = ipos(m);
+							j = jpos(m);
+							flag = preso(m);
+							if(m[i][j+1] != 'O' && m[i][j+1] != 'V'){
+								if(flag == 0){
+									m[i][j] = 'I';
+									m[i][j+1] = 'A';
+								}else{
+									m[i][j] = 'I';
+									m[i][j+1] = 'P'; 				
+								}
+							}else if(m[i][j+1] == 'V'){
+								m[i][j] = 'I';
+								m[i][j+1] = 'P';					
+							}
+							write(clientConnectionDescriptor, m, 1000);
+							//stampa(m);
+						break;
+			
+					case 'w':
+							i = ipos(m);
+							j = jpos(m);
+							flag = preso(m);
+							if(m[i-1][j] != 'O' && m[i-1][j] != 'V'){
+								if(flag == 0){
+									m[i][j] = 'I';
+									m[i-1][j] = 'A';
+								}else{
+									m[i][j] = 'I';
+									m[i-1][j] = 'P'; 				
+								}
+							}else if(m[i-1][j] == 'V'){
+								m[i][j] = 'I';
+								m[i-1][j] = 'P';					
+							}
+							write(clientConnectionDescriptor, m, 1000);
+							//stampa(m);
+						break;
+			
+					case 's':
+							i = ipos(m);
+							j = jpos(m);
+							flag = preso(m);
+							if(m[i+1][j] != 'O' && m[i+1][j] != 'V'){
+								if(flag == 0){
+									m[i][j] = 'I';
+									m[i+1][j] = 'A';
+								}else{
+									m[i][j] = 'I';
+									m[i+1][j] = 'P'; 				
+								}
+							}else if(m[i+1][j] == 'V'){
+								m[i][j] = 'I';
+								m[i+1][j] = 'P';					
+							}
+							write(clientConnectionDescriptor, m, 1000);
+							//stampa(m);
+							
+						break;
+						
+							}//fine switch
+					
+				//Partita terminata
+				if(pacchetto preso && posizione personaggio==m[Max-1][MAX-1]){
+					partitaFinita=1;
+				}
+					
+				//Uscita dal gioco
+				if(partitaFinita==1){
+					printf("Bravo hai vinto una banana!");
+					exit(0);
+				}
+						
+				printf("Attendo altre richieste...\n");
+	
+				//write(clientConnectionDescriptor, m, 1000); //#######
+	
+				//memset(buffer, 0, sizeof(buffer));
+	
+				//exit(0);
+				
+            }//fine while dei comandi(cioè accetto sempre nuovi comandi finchè nn finisco il gioco)
+		 
+		}//fine else if processo figlio
+            
 		
-    k++;
-    close(clientConnectionDescriptor);
-	}//fine while
+		
+		//?	
+		//k++;
+		
+		close(clientConnectionDescriptor);
+    
+	}//fine while delle connessioni(cioè accetto sempre connessioni)
     
 	return 0;
 
