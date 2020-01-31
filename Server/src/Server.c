@@ -270,7 +270,10 @@ int main(int argc, char **argv) {
 						break;
 						
 							}//fine switch
-					
+	/*			
+	 * ||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+	 * |||||||||||PARTE DA AGGIUNGERE||||||||||||||||||||||||||	
+				
 				//Partita terminata
 				if(pacchetto preso && posizione personaggio==m[Max-1][MAX-1]){
 					partitaFinita=1;
@@ -281,6 +284,8 @@ int main(int argc, char **argv) {
 					printf("Bravo hai vinto una banana!");
 					exit(0);
 				}
+				
+	*/
 						
 				printf("Attendo altre richieste...\n");
 	
