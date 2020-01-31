@@ -40,6 +40,7 @@ int main(int argc, char **argv) {
 	char m[MAX][MAX];//campo
 	char scelta;
 	int flag = 0; //flag controllo pacchetto
+    int k=0; //indice buffer
 
 	//creo il socket
 	socketDescriptor=socket(AF_INET,SOCK_STREAM,0);//creo il socket(famiglia,tipo,protocollo(zero per protocollo migliore disp))
@@ -65,7 +66,7 @@ int main(int argc, char **argv) {
 	personaggiopacchetto(m);
 
     printf("Bisogna muoversi nel labirinto, prendere il pacchetto ed uscire per completare il gioco.\n\nLegenda: \nA-personaggio\nE-Uscita\nI-Spazio libero\nO-Ostacolo\nP-Pacchetto preso\n");
-    
+    char buffer[1000];
 	while(1 && m[MAX-1][MAX-1] != 'P'){
 		//accetto connessioni
 		int lunghezzaClient;
@@ -91,12 +92,13 @@ int main(int argc, char **argv) {
             printf("\nUtilizzare WASD per muovere il personaggio all'interno del labirinto.\n");
             stampa(m);
 
-			char buffer[100];
+			
 			read(clientConnectionDescriptor,buffer,sizeof(buffer));
 
             printf("-[%s]Messaggio ricevuto: %s\n",inet_ntoa(indirizzoClient.sin_addr),buffer);
-
-            scelta = buffer[0];
+            
+            scelta = buffer[k];
+            printf("il buffer è %c\n", buffer[k]);
             
 
 		switch(scelta){
@@ -260,14 +262,16 @@ int main(int argc, char **argv) {
 
             write(clientConnectionDescriptor, m, 1000); //#######
 
+            memset(buffer, 0, sizeof(buffer));
+
 			exit(0);
 		 }
 
-		close(clientConnectionDescriptor);
-
-
+		
+    k++;
+    close(clientConnectionDescriptor);
 	}//fine while
-
+    
 	return 0;
 
 }
