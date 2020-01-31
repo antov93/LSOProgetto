@@ -104,7 +104,7 @@ int main(int argc, char **argv) {
 				
 				
 				scelta = buffer[0];
-				printf("il buffer/comando inviato è %c\n", buffer[0]);
+				//printf("il buffer/comando inviato è %c\n", buffer[0]);
 				
 					switch(scelta){
 						case 'A':
