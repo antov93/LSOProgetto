@@ -18,8 +18,8 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <errno.h>
+#define PORTA 1208
 #define MAX 10 //dimensione matrice
-#define PORTA 1205 //porta sulla quale il server è in ascolto
 
 void generazione(char m[][MAX]);
 void stampa(char m[][MAX]);
@@ -28,8 +28,10 @@ void personaggiopacchetto(char m[][MAX]);
 int preso(char m[][MAX]);
 int ipos(char m[][MAX]);
 int jpos(char m[][MAX]);
+int check(char utente[]);
+void registra(char utente[]);
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv){
 
 	struct sockaddr_in indirizzoServer; //serve per mettersi in ascolto su una determinata porta
 	struct sockaddr_in indirizzoClient; //serve per contenere le informzioni sulla connessione che mi arrivano dal client
@@ -40,8 +42,11 @@ int main(int argc, char **argv) {
 	char m[MAX][MAX];//campo
 	char scelta;
 	int flag = 0; //flag controllo pacchetto
-    //int k=0; //indice buffer
-    char buffer[1000];
+    char username[30];
+   	char buffer[1000];
+	int esiste=0;//controllo dei dati utenti
+    char accesso;
+    int proseguo =0;//sistema di registrazione
     
 	//creo il socket
 	socketDescriptor=socket(AF_INET,SOCK_STREAM,0);//creo il socket(famiglia,tipo,protocollo(zero per protocollo migliore disp))
@@ -89,11 +94,36 @@ int main(int argc, char **argv) {
 
 			printf("**Nuova connessione dal client: %s\n",inet_ntoa(indirizzoClient.sin_addr));
 			
-            //stampa(m);
-            //dopo la connessione con il client invio subito il quadro di gioco
-			write(clientConnectionDescriptor, m, 1000);
-            printf("In attesta di ricezione di un messaggio...\n");
-			
+
+	while(proseguo==0){
+	    read(clientConnectionDescriptor,&accesso,sizeof(accesso));
+            printf("\nIo so che accesso è %c\n", accesso);
+		if(accesso == 'L'){
+                read(clientConnectionDescriptor,username,sizeof(username));
+            	esiste=check(username);
+		        proseguo=1;
+                
+            }else if(accesso == 'R'){
+                char t;
+                read(clientConnectionDescriptor, &t,sizeof(t));
+                if(t=='Y'){
+                read(clientConnectionDescriptor,username,sizeof(username));
+            	registra(username);
+                }
+
+            }else{
+                printf("\nScelta errata!\n");
+            }
+
+	}//fine while del sistema di registrazione
+
+
+
+           //dopo la connessione con il client invio subito il quadro di gioco
+	   write(clientConnectionDescriptor, m, 1000);
+
+	    if(esiste==1){//se il controllo dati è andato bene, il gioco diventa disponibile
+	
             int partitaFinita=0;
             
             while(partitaFinita==0){
@@ -102,9 +132,12 @@ int main(int argc, char **argv) {
 				read(clientConnectionDescriptor,buffer,sizeof(buffer));
 				printf("-[%s]Messaggio ricevuto: %s\n",inet_ntoa(indirizzoClient.sin_addr),buffer);
 				
-				
 				scelta = buffer[0];
-				//printf("il buffer/comando inviato è %c\n", buffer[0]);
+
+                if(scelta >= 'a' && scelta <= 'z'){ //se il comando è minuscolo, allora lo rendo maiuscolo
+                    scelta = scelta-32; 
+                 }
+
 				
 					switch(scelta){
 						case 'A':
@@ -187,87 +220,6 @@ int main(int argc, char **argv) {
 							write(clientConnectionDescriptor, m, 1000);
 							//stampa(m);
 						break;
-							case 'a':
-							i = ipos(m);
-							j = jpos(m);
-							flag = preso(m);
-							if(m[i][j-1] != 'O' && m[i][j-1] != 'V'){
-								if(flag == 0){
-									m[i][j] = 'I';
-									m[i][j-1] = 'A';
-								}else{
-									m[i][j] = 'I';
-									m[i][j-1] = 'P'; 				
-								}
-								
-							}else if(m[i][j-1] == 'V'){
-								m[i][j] = 'I';
-								m[i][j-1] = 'P';					
-							}
-							write(clientConnectionDescriptor, m, 1000);
-							//stampa(m);
-						break;
-						
-						case 'd':
-							i = ipos(m);
-							j = jpos(m);
-							flag = preso(m);
-							if(m[i][j+1] != 'O' && m[i][j+1] != 'V'){
-								if(flag == 0){
-									m[i][j] = 'I';
-									m[i][j+1] = 'A';
-								}else{
-									m[i][j] = 'I';
-									m[i][j+1] = 'P'; 				
-								}
-							}else if(m[i][j+1] == 'V'){
-								m[i][j] = 'I';
-								m[i][j+1] = 'P';					
-							}
-							write(clientConnectionDescriptor, m, 1000);
-							//stampa(m);
-						break;
-			
-					case 'w':
-							i = ipos(m);
-							j = jpos(m);
-							flag = preso(m);
-							if(m[i-1][j] != 'O' && m[i-1][j] != 'V'){
-								if(flag == 0){
-									m[i][j] = 'I';
-									m[i-1][j] = 'A';
-								}else{
-									m[i][j] = 'I';
-									m[i-1][j] = 'P'; 				
-								}
-							}else if(m[i-1][j] == 'V'){
-								m[i][j] = 'I';
-								m[i-1][j] = 'P';					
-							}
-							write(clientConnectionDescriptor, m, 1000);
-							//stampa(m);
-						break;
-			
-					case 's':
-							i = ipos(m);
-							j = jpos(m);
-							flag = preso(m);
-							if(m[i+1][j] != 'O' && m[i+1][j] != 'V'){
-								if(flag == 0){
-									m[i][j] = 'I';
-									m[i+1][j] = 'A';
-								}else{
-									m[i][j] = 'I';
-									m[i+1][j] = 'P'; 				
-								}
-							}else if(m[i+1][j] == 'V'){
-								m[i][j] = 'I';
-								m[i+1][j] = 'P';					
-							}
-							write(clientConnectionDescriptor, m, 1000);
-							//stampa(m);
-							
-						break;
 						
 							}//fine switch
 	/*			
@@ -297,6 +249,11 @@ int main(int argc, char **argv) {
 				//exit(0);
 				
             }//fine while dei comandi(cioè accetto sempre nuovi comandi finchè nn finisco il gioco)
+
+	    }else{
+		printf("\nErrore durante l'accesso: username e/o password errati!");
+	    }//fine controllo del sistema di registrazione
+
 		 
 		}//fine else if processo figlio
             
@@ -440,3 +397,57 @@ void stampa(char m[][MAX]){
 		}
 
 }
+
+int check(char utente[]){
+	int i=0,j=0;
+	FILE *fp;
+	char lettura[20][20];
+	int dim;
+	
+	fp=fopen("utenti.txt","r"); //apro il file in lettura
+
+	if(fp){ 
+
+		while(!feof(fp)){
+			
+			fscanf(fp, "%s", lettura[i]);
+			i++;
+				
+		}//fine while della lettura file
+		
+	}else{
+		printf("Errore apertura file!");
+	}//fine controllo esistenza file
+	
+	fclose(fp);
+	
+	
+	int res = 0;
+
+	dim = i;
+
+	for (i = 0; i < dim; i++) //controllo riga per riga se i dati sono presenti nel file
+		if (strcmp(utente, lettura[i]) == 0){
+            res = 1;
+            return res;
+        }
+			
+
+	  return res;
+	
+}
+
+void registra(char utente[]){
+    FILE *fp;
+
+    fp=fopen("utenti.txt","a"); //apro il file
+
+    if(fp){
+            fprintf(fp, "%s\n", utente);
+    }else{
+        printf("\nErrore nella scrittura del file!\n");
+    }
+
+    fclose(fp);
+}
+
