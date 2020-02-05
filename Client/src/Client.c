@@ -18,20 +18,19 @@
 #include <sys/types.h>
 #include <string.h>
 
-#define PORTA 1208
+#define PORTA 1202
 #define MAX 10 
 
-void stampa(char m[][MAX]);
+void stampa(char buffer[]);
 
 int main(int argc, char *argv[]) {
 	int i;
 	struct sockaddr_in serverDescriptor; //struct in cui inserisco le info del server a cui voglio connettermi
 								 //poiche il client per connettersi deve conoscere ip e porta del server
-    char buffer[1000];
+    char buffer[1000]; 
 	int socketClientDescriptor; //descrittore del socket locale del client
 	char username[30];
 	char password[10];
-    char messaggio[100];
     char confronto[10];
     char a;
     int proseguo =0;
@@ -101,9 +100,6 @@ int main(int argc, char *argv[]) {
 
 }//fine while del sistema di registrazione	
 
-    
-
-        	
 	
 	printf("\nBENVENUTO NEL GIOCO\n");
 	printf("Istruzioni:\nBisogna muoversi nel labirinto, prendere il pacchetto ed uscire per completare il gioco.\n\nLegenda: \nA-personaggio\nE-Uscita\nI-Spazio libero\nO-Ostacolo\nP-Pacchetto preso\n");
@@ -114,59 +110,47 @@ int main(int argc, char *argv[]) {
 		read(socketClientDescriptor,buffer,sizeof(buffer));
 		
 		//stampo la matrice
-		for(i=0; i<100; i++){
-		        if(i % 10 == 0){
-		            printf("\n");     
-		        }else{
-		                printf("%c ", buffer[i]);
-		              }
-		    }
+		stampa(buffer);
 		
 	while(1){
-	
-	
-	
+
 	//mi metto in attesa di un nuovo messaggio/comando
 	printf("\nscrivi un messaggio da inviare al server: ");
-	scanf("%s",messaggio);
+	scanf("%s",buffer);
 
     //scrivo il comando sul socket
-	write(socketClientDescriptor,messaggio,sizeof(messaggio));
+	write(socketClientDescriptor,buffer,sizeof(buffer));
 
-    //dopo aver mandato il comando devo leggere la nuova matrice con lo spostamento
+    //leggo la matrice
 	read(socketClientDescriptor,buffer,sizeof(buffer));
     printf("\n-[]Messaggio ricevuto: \n");
        
     //stampo la matrice
-    for(i=0; i<100; i++){
-        if(i % 10 == 0){
-            printf("\n");     
-        }else{
-                printf("%c ", buffer[i]);
-              }
-    }
+    stampa(buffer);
 
-    //memset(buffer, 0, sizeof(buffer));
-    //close(socketClientDescriptor);
     }//fine while
-
-	
 
 
 	return 0;
 }
 
-void stampa(char m[][MAX]){
+void stampa(char buffer[]){
 
 	int i;
 	int j;
 
-	for(i=0; i<MAX; i++){
-		for(j=0; j<MAX; j++){
-			printf("%c   ", m[i][j]);
-
-			}
-			printf("\n");
-		}
+	for(i=0; i<100; i++){
+       if(buffer[i] == 'o'){
+          if(i % 10 == 0){
+            printf("\n");
+          }
+          printf("i");
+        }else{
+          if(i % 10 == 0){
+            printf("\n");
+          }
+          printf("%c", buffer[i]); 
+         }
+    }
 
 }
