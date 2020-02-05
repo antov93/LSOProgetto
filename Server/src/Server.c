@@ -18,7 +18,7 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <errno.h>
-#define PORTA 1208
+#define PORTA 1202
 #define MAX 10 //dimensione matrice
 
 void generazione(char m[][MAX]);
@@ -88,12 +88,11 @@ int main(int argc, char **argv){
 			    generazione(m);
 				ostacoli(m);
 				personaggiopacchetto(m);
-				
-				
+
 			close(socketDescriptor); //lavora solo con clientConnectionDescriptor
 
 			printf("**Nuova connessione dal client: %s\n",inet_ntoa(indirizzoClient.sin_addr));
-			
+
 
 	while(proseguo==0){
 	    read(clientConnectionDescriptor,&accesso,sizeof(accesso));
@@ -118,7 +117,6 @@ int main(int argc, char **argv){
 	}//fine while del sistema di registrazione
 
 
-
            //dopo la connessione con il client invio subito il quadro di gioco
 	   write(clientConnectionDescriptor, m, 1000);
 
@@ -138,87 +136,100 @@ int main(int argc, char **argv){
                     scelta = scelta-32; 
                  }
 
-				
 					switch(scelta){
 						case 'A':
 							i = ipos(m);
 							j = jpos(m);
 							flag = preso(m);
-							if(m[i][j-1] != 'O' && m[i][j-1] != 'V'){
+							if((m[i][j-1] > 'b' && m[i][j-1] < 'n')){
 								if(flag == 0){
-									m[i][j] = 'I';
-									m[i][j-1] = 'A';
+									m[i][j] = 'i';
+									m[i][j-1] = 'a';
 								}else{
-									m[i][j] = 'I';
-									m[i][j-1] = 'P'; 				
+									m[i][j] = 'i';
+									m[i][j-1] = 'p'; 				
 								}
 								
-							}else if(m[i][j-1] == 'V'){
-								m[i][j] = 'I';
-								m[i][j-1] = 'P';					
+							}else if(m[i][j-1] == 'v'){
+								m[i][j] = 'i';
+								m[i][j-1] = 'p';					
 							}
-							//stampa(m);
-							write(clientConnectionDescriptor, m, 1000);
+                            if(flag==0){
+							    write(clientConnectionDescriptor, m, 1000);
+                            }
+
 						break;
 						
 						case 'D':
 							i = ipos(m);
 							j = jpos(m);
 							flag = preso(m);
-							if(m[i][j+1] != 'O' && m[i][j+1] != 'V'){
+							if(m[i][j+1] > 'b' && m[i][j+1] < 'n'){
 								if(flag == 0){
-									m[i][j] = 'I';
-									m[i][j+1] = 'A';
+									m[i][j] = 'i';
+									m[i][j+1] = 'a';
 								}else{
-									m[i][j] = 'I';
-									m[i][j+1] = 'P'; 				
+									m[i][j] = 'i';
+									m[i][j+1] = 'p'; 				
 								}
-							}else if(m[i][j+1] == 'V'){
-								m[i][j] = 'I';
-								m[i][j+1] = 'P';					
+							}else if(m[i][j+1] == 'v'){
+								m[i][j] = 'i';
+								m[i][j+1] = 'p';					
 							}
-							//stampa(m);
-							write(clientConnectionDescriptor, m, 1000);
+
+							    write(clientConnectionDescriptor, m, 1000);
+                            
 						break;
 			
 					case 'W':
 							i = ipos(m);
 							j = jpos(m);
 							flag = preso(m);
-							if(m[i-1][j] != 'O' && m[i-1][j] != 'V'){
+							if(m[i-1][j] > 'b' && m[i-1][j] < 'n'){
 								if(flag == 0){
-									m[i][j] = 'I';
-									m[i-1][j] = 'A';
+									m[i][j] = 'i';
+									m[i-1][j] = 'a';
 								}else{
-									m[i][j] = 'I';
-									m[i-1][j] = 'P'; 				
+									m[i][j] = 'i';
+									m[i-1][j] = 'p'; 				
 								}
-							}else if(m[i-1][j] == 'V'){
-								m[i][j] = 'I';
-								m[i-1][j] = 'P';					
+							}else if(m[i-1][j] == 'v'){
+								m[i][j] = 'i';
+								m[i-1][j] = 'p';					
 							}
-							//stampa(m);
-							write(clientConnectionDescriptor, m, 1000);
+
+							    write(clientConnectionDescriptor, m, 1000);
+                            
 						break;
 			
 					case 'S':
 							i = ipos(m);
 							j = jpos(m);
 							flag = preso(m);
-							if(m[i+1][j] != 'O' && m[i+1][j] != 'V'){
+							if(m[i+1][j] > 'b' && m[i+1][j] < 'n'){
 								if(flag == 0){
-									m[i][j] = 'I';
-									m[i+1][j] = 'A';
+									m[i][j] = 'i';
+									m[i+1][j] = 'a';
 								}else{
-									m[i][j] = 'I';
-									m[i+1][j] = 'P'; 				
+									m[i][j] = 'i';
+									m[i+1][j] = 'p'; 				
 								}
-							}else if(m[i+1][j] == 'V'){
-								m[i][j] = 'I';
-								m[i+1][j] = 'P';					
+							}else if(m[i+1][j] == 'v'){
+								m[i][j] = 'i';
+								m[i+1][j] = 'p';					
 							}
-							write(clientConnectionDescriptor, m, 1000);
-							//stampa(m);
+							    write(clientConnectionDescriptor, m, 1000);
+                            
+						break;
+
+                    case 'P':
+							
+
+						break;
+
+                    case 'T':
+							
+
 						break;
 						
 							}//fine switch
@@ -241,13 +252,7 @@ int main(int argc, char **argv){
 	*/
 						
 				printf("Attendo altre richieste...\n");
-	
-				//write(clientConnectionDescriptor, m, 1000); //#######
-	
-				//memset(buffer, 0, sizeof(buffer));
-	
-				//exit(0);
-				
+
             }//fine while dei comandi(cioè accetto sempre nuovi comandi finchè nn finisco il gioco)
 
 	    }else{
@@ -257,10 +262,6 @@ int main(int argc, char **argv){
 		 
 		}//fine else if processo figlio
             
-		
-		
-		//?	
-		//k++;
 		
 		close(clientConnectionDescriptor);
     
@@ -277,7 +278,7 @@ void generazione(char m[][MAX]){
 
 	for(i=0; i<MAX; i++){
 		for(j=0; j<MAX; j++){
-			m[i][j] = 'I';
+			m[i][j] = 'i';
 
 			}
 		}
@@ -296,13 +297,34 @@ void ostacoli(char m[][MAX]){
 		i=rand()%(MAX-1)+0;
 		j=rand()%(MAX-1)+0;
 	
-		if(m[i][j] == 'I'){
-			m[i][j] = 'O';
+		if(m[i][j] == 'i'){
+			m[i][j] = 'o';
 			cont++;
 		}
 	}
 
-	m[MAX-1][MAX-1] = 'E';
+    char coord[12]="ABCDEFGHI";
+    char coord2[12]="012345678";
+
+    for(i=0, j=0; i<10; i++){
+     m[i][j]=coord[i];
+    }
+
+    for(j=0, i=0; j<10; j++){
+     m[i][j]=coord2[j];
+    }
+
+    for(i=0, j=9; i<10; i++){
+     m[i][j]='o';
+    }
+
+     for(i=9, j=0; j<10; j++){
+     m[i][j]='o';
+    }
+
+    m[9][0] = 'L';
+    m[0][9] = '9';
+
 }
 
 void personaggiopacchetto(char m[][MAX]){
@@ -316,25 +338,23 @@ void personaggiopacchetto(char m[][MAX]){
 		i=rand()%(MAX-1)+0;
 		j=rand()%(MAX-1)+0;
 	
-		if(m[i][j] == 'I'){
-			m[i][j] = 'A';
+		if(m[i][j] == 'i'){
+			m[i][j] = 'a';
 			cont++;
 		}
 	}
 
-	cont = 0;
-	while(cont<1){
+	cont = 0;    
+	while(cont<5){
 		
 		i=rand()%(MAX-1)+0;
 		j=rand()%(MAX-1)+0;
 	
-		if(m[i][j] == 'I'){
-			m[i][j] = 'V';
+		if(m[i][j] == 'i'){
+			m[i][j] = 'v';
 			cont++;
 		}
 	}
-	
-	
 }
 
 int ipos(char m[][MAX]){
@@ -343,7 +363,7 @@ int ipos(char m[][MAX]){
 
 	for(i=0; i<MAX; i++){
 		for(j=0; i<MAX; j++){
-			if(m[i][j] == 'A' || m[i][j] == 'P'){
+			if(m[i][j] == 'a' || m[i][j] == 'p'){
 				return i;			
 			}
 
@@ -358,7 +378,7 @@ int jpos(char m[][MAX]){
 
 	for(i=0; i<MAX; i++){
 		for(j=0; i<MAX; j++){
-			if(m[i][j] == 'A' || m[i][j] == 'P'){
+			if(m[i][j] == 'a' || m[i][j] == 'p'){
 				return j;			
 			}
 
@@ -373,9 +393,9 @@ int preso(char m[][MAX]){
 
 	for(i=0; i<MAX; i++){
 		for(j=0; i<MAX; j++){
-			if(m[i][j] == 'V'){
+			if(m[i][j] == 'v'){
 				return 0;			
-			}else if(m[i][j] == 'P'){
+			}else if(m[i][j] == 'p'){
 				return 1;
 			}
 	
