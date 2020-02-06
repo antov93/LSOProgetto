@@ -190,23 +190,3 @@ int main(void) {
 	
 		return 0;
 }
-
-//void stampa(char buffer[]){
-//
-//	int i;
-//	int j;
-//
-//	for(i=0; i<100; i++){
-//	       if(buffer[i] == 'o'){
-//	          if(i % 10 == 0){
-//	        	  printf("\n");
-//	          }
-//	          printf("* ");
-//	       }else{
-//	        	if(i % 10 == 0){
-//	        		printf("\n");
-//	        	}
-//	        	printf("%c ", buffer[i]); 
-//	         }
-//	}
-//}

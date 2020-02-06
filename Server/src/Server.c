@@ -33,11 +33,12 @@ typedef struct{
 parametriClient p[15]; //variabile globale che rappresenta tutti i client che si connettono
 int numeroClient=0; //variabile globale,indice dei client connessi
 char campoGioco[MAX][MAX]; //variabile globale, tutti i client lavorano sullo stesso campo 
+int personaggioCorrente=0; //indica il personaggio a cui siamo arrivati 
 
-void generazione(char m[MAX][MAX]);
-void stampa(char m[MAX][MAX]);
-void ostacoli(char m[MAX][MAX]);
-void personaggiopacchetto(char m[MAX][MAX]);
+void creaCampo(char m[MAX][MAX]);
+void creaOstacoli(char m[MAX][MAX]);
+void creaPacco(char m[MAX][MAX]);
+void creaPersonaggio(char m[MAX][MAX]);
 int preso(char m[][MAX]);
 int ipos(char m[][MAX]);
 int jpos(char m[][MAX]);
@@ -84,7 +85,8 @@ void *funzioneThread(void * arg){//devo passare  in arg il client connectiondesc
     		
     		
   			//genero personaggio e pacco,ogni client è diverso
-  			personaggiopacchetto(campoGioco);
+  			creaPersonaggio(campoGioco);
+  			creaPacco(campoGioco);
   			
             //dopo la connessione con il client invio subito il quadro di gioco a tutti i client
   			for(int i=0;i<numeroClient;i++){
@@ -233,16 +235,15 @@ int main(int argc, char **argv) {
 	int clientConnectionDescriptor; //info sul client arrivate tramite l ACCEPT
 	int i; //indice matrice
 	int j; //indice matrice
-	//char m[MAX][MAX];//campo
 	char scelta;
 	int flag = 0; //flag controllo pacchetto
     char buffer[1000];
     
     //genero il campo da gioco che deve essere uguale per tutti i client
-    generazione(campoGioco);
+    creaCampo(campoGioco);
     	
     //genero gli ostacoli uguali per ogni client 
-    ostacoli(campoGioco);
+    creaOstacoli(campoGioco);
     	
 	//creo il socket
 	socketDescriptor=socket(AF_INET,SOCK_STREAM,0);//creo il socket(famiglia,tipo,protocollo(zero per protocollo migliore disp))
@@ -295,7 +296,7 @@ int main(int argc, char **argv) {
 }
 
 //genero una matrice 11x11 dove la riga e la colonna zero rappresentano le coordinate
-void generazione(char m[MAX][MAX]){
+void creaCampo(char m[MAX][MAX]){
 	int i,j;
 	//tutte le celle sono *
 	for(i=0; i<MAX; i++){
@@ -333,7 +334,7 @@ void generazione(char m[MAX][MAX]){
 }
 
 //genero 10 ostacoli casuali
-void ostacoli(char m[][MAX]){
+void creaOstacoli(char m[][MAX]){
 	int i;
 	int j;
 	int cont = 0;
@@ -353,35 +354,42 @@ void ostacoli(char m[][MAX]){
 	}
 }
 
-void personaggiopacchetto(char m[][MAX]){
+void creaPersonaggio(char m[][MAX]){
 	
 	int i;
 	int j;	
 	int cont = 0;
-
+	
+	char personaggi[]={'a','b','c','d','e','f','g','h','i','l','m','n','o','p','q','r','s','t','u','v','z'};
+	
 	while(cont<1){
 		
 		i=rand()%(MAX-1)+0;
 		j=rand()%(MAX-1)+0;
 	
 		if(m[i][j] == '*'){
-			m[i][j] = 'a';
+			m[i][j] = personaggi[personaggioCorrente];
+			personaggioCorrente++;
 			cont++;
 		}
 	}
 
-	cont = 0;
+	
+	
+}
+
+void creaPacco(char m[][MAX]){
+	int i=0,j=0;
+	int cont = 0;
+	
 	while(cont<1){
-		
-		i=rand()%(MAX-1)+0;
-		j=rand()%(MAX-1)+0;
-	
-		if(m[i][j] == '*'){
-			m[i][j] = 'v';
-			cont++;
-		}
+			i=rand()%(MAX-1)+0;
+			j=rand()%(MAX-1)+0;
+			if(m[i][j] == '*'){
+				m[i][j] = 'x';
+				cont++;
+			}
 	}
-	
 }
 
 //ritorna la riga del personaggio
