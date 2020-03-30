@@ -668,7 +668,7 @@ void logging_log(char ip[]){
 }
 
 
-void logging_exit(char ip[]){
+void logging_exit(char ip[]){ 
     FILE *fp;
     time_t ora;
     ora = time(NULL);

@@ -76,13 +76,10 @@ void *stampaMatriceThread(void *arg){
 					for(int i=0; i<strlen(utenti); i++){
 						printf("%s\n", utenti[i]);
 					}
-
 				}
 				x=2;
 			}
 		}
-					
-	
 	pthread_exit(0);
 }
 
