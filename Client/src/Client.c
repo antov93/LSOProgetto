@@ -89,7 +89,7 @@ void *leggiComandoThread(void *arg){
 
 		while(fine_partita==0){
 
-			if(x==2){
+			if(x==2){//x
 				char messaggio[1];
 			
 				//mi metto in attesa di un nuovo messaggio/comando
