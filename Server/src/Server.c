@@ -23,7 +23,7 @@
 #include <time.h>
 
 #define MAX 11 //dimensione matrice
-#define PORTA 1205 //porta sulla quale il server è in ascolto
+#define PORTA 1205 //porta sulla quale il server Ã¨ in ascolto
 
 typedef struct{
 	int descrittore;
@@ -90,7 +90,7 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
     		while(proseguo==0){
     			    
     			read(p[clientThread].descrittore,&accesso,sizeof(accesso));
-    		    printf("\nIo so che accesso è %c\n", accesso);
+    		    printf("\nIo so che accesso Ã¨ %c\n", accesso);
     				
     		    if(accesso == 'L'){
     		    	read(p[clientThread].descrittore,username,sizeof(username));
@@ -109,13 +109,13 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
 
     		}//fine while del sistema di registrazione
     		
-  			//genero personaggio e pacco,ogni client è diverso
+  			//genero personaggio e pacco,ogni client Ã¨ diverso
   			creaPersonaggio(campoGioco);
   			creaPacco(campoGioco);
   			
   			//assegno il personaggio al client in qstione
-  			//poiche personaggi è globale
-  			//mentre personaggioClient è locale al thread
+  			//poiche personaggi Ã¨ globale
+  			//mentre personaggioClient Ã¨ locale al thread
   			personaggioClient=personaggi[personaggioCorrente-1];
   			printf("-Il personaggio del client --> '%c'\n",personaggioClient);
   			printf("-Client numero: '%d'\n",clientThread);
@@ -143,7 +143,7 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
 
   				scelta = buffer[0];
   				
-  				//se il comando è minuscolo, allora lo rendo maiuscolo
+  				//se il comando Ã¨ minuscolo, allora lo rendo maiuscolo
   				if(scelta >= 'a' && scelta <= 'z'){ 
   					scelta = scelta-32; 
   				}
@@ -283,7 +283,7 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
                                 printf("Locazione di arrivo: colonna=%d riga=%d\n",locazioneJ,locazioneI);
 
                             }else{
-                                printf("Non c'è nessun pacco da prendere!\n");
+                                printf("Non c'Ã¨ nessun pacco da prendere!\n");
                             }
 
                         write(p[clientThread].descrittore,campoGioco, 121);
@@ -361,7 +361,7 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   				
   				printf("Attendo altre richieste...\n");
   				
-            }//fine while dei comandi(cioè accetto sempre nuovi comandi finchè nn finisco il gioco)
+            }//fine while dei comandi(cioÃ¨ accetto sempre nuovi comandi finchÃ¨ nn finisco il gioco)
             
   		pthread_exit(0);
   		
@@ -433,7 +433,7 @@ int main(int argc, char **argv) {
 		
 		//pthread_join(th,NULL);
 		
-	}//fine while delle connessioni(cioè accetto sempre connessioni)
+	}//fine while delle connessioni(cioÃ¨ accetto sempre connessioni)
     
 	return 0;
 
@@ -559,24 +559,6 @@ int jpos(char m[][MAX],char personaggio){
 		}
 	}
 }
-
-//????scorre la matrice: qnd trova v ritorna 0,qnd trova p ritorna 1 
-//int preso(char m[][MAX]){
-//
-//	int i;
-//	int j;
-//
-//	for(i=0; i<MAX; i++){
-//		for(j=0; j<MAX; j++){
-//			if(m[i][j] == 'v'){
-//				return 0;			
-//			}else if(m[i][j] == 'p'){
-//				return 1;
-//			 }
-//	
-//		}
-//	}
-//}
  
 void stampa(char m[][MAX]){
 
@@ -639,7 +621,7 @@ void registra(char utente[]){
     fclose(fp);
 }
 
-//controllo se è presente tra i personaggi il personaggio dato
+//controllo se Ã¨ presente tra i personaggi il personaggio dato
 int cercaPersonaggio(char personaggio){
 
 	int i=0;
@@ -668,7 +650,7 @@ void logging_log(char ip[]){
 }
 
 
-void logging_exit(char ip[]){ 
+void logging_exit(char ip[]){
     FILE *fp;
     time_t ora;
     ora = time(NULL);

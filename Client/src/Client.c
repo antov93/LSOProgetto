@@ -74,12 +74,15 @@ void *stampaMatriceThread(void *arg){
 					printf("\nUtenti online: \n");
 
 					for(int i=0; i<strlen(utenti); i++){
-						printf("%s\n", utenti[i]);
+						printf("%c\n", utenti[i]);
 					}
+
 				}
 				x=2;
 			}
 		}
+					
+	
 	pthread_exit(0);
 }
 
@@ -89,7 +92,7 @@ void *leggiComandoThread(void *arg){
 
 		while(fine_partita==0){
 
-			if(x==2){//x
+			if(x==2){
 				char messaggio[1];
 			
 				//mi metto in attesa di un nuovo messaggio/comando
@@ -140,7 +143,7 @@ int main(void) {
 		struct sockaddr_in serverDescriptor; //struct in cui inserisco le info del server a cui voglio connettermi
 					   						 //poiche il client per connettersi deve conoscere ip e porta del server
 		
-		//struttura alla quale mi connetto(il server cioè)
+		//struttura alla quale mi connetto(il server cioÃ¨)
 		serverDescriptor.sin_family=AF_INET;
 		serverDescriptor.sin_port=htons(PORTA);
 		inet_aton("192.168.1.11", &serverDescriptor.sin_addr);
