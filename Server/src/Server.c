@@ -36,6 +36,9 @@ char campoGioco[MAX][MAX]; //variabile globale, tutti i client lavorano sullo st
 char personaggi[]={'a','b','c','d','e','f','g','h','i','l','m','n','o','p','q','r','s','t','u','v','z'};
 int personaggioCorrente=0; //indica il personaggio a cui siamo arrivati 
 int ore = 0, minuti = 14, secondi = 10; //var globale tempo
+char username_globali[124]; //ci inserisco gli user dei giocatori online
+char nome[20];
+int q = 0; //indice variabile username_globali
 
 void creaCampo(char m[MAX][MAX]);
 void creaOstacoli(char m[MAX][MAX]);
@@ -48,11 +51,15 @@ void registra(char utente[]);
 int cercaPersonaggio(char personaggio);
 void logging_log(char ip[]);
 void logging_exit(char ip[]);
-
+void salva_username(char username[]);
+void cancella_online(char username[]);
+void logging_posato(char username[], int i, int j, int punteggio);
+void logging_preso(char username[], int i, int j, int punteggio);
 
 void *timerThread(void *arg){
 
 	while(1){
+		
 		if(secondi < 0){
 			secondi = 59;
 			--minuti;
@@ -79,7 +86,7 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   			int locazioneJ=0; //coordinate della locazione di arrivo di un pacco
   			int punteggioClient=0; //numero pacchi posati
   			char ultimoCarattere = '*'; //variabile temporanea per la disconnessione
-  			int tempo[3]; //buffer per inviare il tempo al client
+  			//int tempo[3]; //buffer per inviare il tempo al client
   			char personaggiConnessi[MAX]; //vettore contenente tutti i caratteri connessi
   			int k=0;
 
@@ -90,8 +97,9 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
     		while(proseguo==0){
     			    
     			read(p[clientThread].descrittore,&accesso,sizeof(accesso));
-    		    printf("\nIo so che accesso è %c\n", accesso);
-    				
+    		    //printf("\nOpzione di accesso selezionata: %c\n", accesso);
+    		    printf("-[%s]Opzione di accesso selezionata: '%c'\n",p[clientThread].indirizzo,accesso);
+    		      				
     		    if(accesso == 'L'){
     		    	read(p[clientThread].descrittore,username,sizeof(username));
     		        proseguo=check(username);
@@ -105,11 +113,15 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
     		        }
     		     }else{
     		    	  printf("\nPremere 'L' o 'R'!\n");
+    		    	  
     		      }
 
     		}//fine while del sistema di registrazione
     		
-  			//genero personaggio e pacco,ogni client è diverso
+    		//inserisco il nome del personaggio nella variabile globale
+    		salva_username(username);
+    		
+    		//genero personaggio e pacco,ogni client è diverso
   			creaPersonaggio(campoGioco);
   			creaPacco(campoGioco);
   			
@@ -117,13 +129,17 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   			//poiche personaggi è globale
   			//mentre personaggioClient è locale al thread
   			personaggioClient=personaggi[personaggioCorrente-1];
-  			printf("-Il personaggio del client --> '%c'\n",personaggioClient);
-  			printf("-Client numero: '%d'\n",clientThread);
-  			printf("-numeroClient: '%d'\n",numeroClient);
+  			printf("-ID client: %d\n",clientThread);
+  			printf("-Carattere assegnato al client --> '%c'\n",personaggioClient);
+  			printf("-Numero totale di client connessi: '%d'\n",numeroClient);
 
-  			logging_log(username);
-
-  			//dopo la connessione con il client invio subito il quadro di gioco solo al client connesso
+  			logging_log(nome);
+  			
+  			//dopo la connessione con il client invio subito il 
+  			//quadro di gioco il tempo  e il punteggio attuale solo al client connesso
+  			write(p[clientThread].descrittore,&minuti,1);
+  			write(p[clientThread].descrittore,&secondi,1);
+  			write(p[clientThread].descrittore,&punteggioClient, 1);
   			write(p[clientThread].descrittore,campoGioco,121);
   			/*			for(int i=0;i<numeroClient;i++){
   				write(p[i].descrittore,campoGioco,121);
@@ -169,10 +185,14 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   							paccoI = i, paccoJ = j-1;
                             campoGioco[i][j] = '*';
   							campoGioco[i][j-1] = personaggioClient;
-  						 }
-
-
-  					  	write(p[clientThread].descrittore,campoGioco, 121);
+  						 }else if(campoGioco[i][j-1] == 'o'){
+ 							campoGioco[i][j-1] = 'i';	
+ 						 }
+  						
+  						write(p[clientThread].descrittore,&minuti,1);
+  						write(p[clientThread].descrittore,&secondi,1);
+  						write(p[clientThread].descrittore,&punteggioClient, 1);
+  						write(p[clientThread].descrittore,campoGioco, 121);
   					  	printf("-Matrice inviata al personaggio '%c'\n",personaggioClient);
   					  	printf("-Client numero: '%d'\n",clientThread);
 
@@ -202,7 +222,13 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   							paccoI = i, paccoJ = j+1;
                             campoGioco[i][j] = '*';
   							campoGioco[i][j+1] = personaggioClient;
-  						 }
+  						 }else if(campoGioco[i][j+1] == 'o'){
+ 							campoGioco[i][j+1] = 'i';
+ 						 }
+  						
+  						write(p[clientThread].descrittore,&minuti,1);
+  						write(p[clientThread].descrittore,&secondi,1);
+  						write(p[clientThread].descrittore,&punteggioClient, 1);
   						write(p[clientThread].descrittore,campoGioco, 121);
   						printf("-Matrice inviata al personaggio '%c'\n",personaggioClient);
   						printf("-Client numero: '%d'\n",clientThread);
@@ -231,8 +257,13 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   							paccoI = i-1, paccoJ = j;
                             campoGioco[i][j] = '*';
   							campoGioco[i-1][j] = personaggioClient;
-  						 }
-
+  						 }else if(campoGioco[i-1][j] == 'o'){
+ 							campoGioco[i-1][j] = 'i';
+ 						  }
+  						
+  						write(p[clientThread].descrittore,&minuti,1);
+  						write(p[clientThread].descrittore,&secondi,1);
+  						write(p[clientThread].descrittore,&punteggioClient, 1);
   						write(p[clientThread].descrittore,campoGioco, 121);
   						printf("-Matrice inviata al personaggio '%c'\n",personaggioClient);
   						printf("-Client numero: '%d'\n",clientThread);
@@ -261,9 +292,14 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   							paccoI = i+1, paccoJ = j;
                             campoGioco[i][j] = '*';
   							campoGioco[i+1][j] = personaggioClient;
-  						 }
-  						printf("-Matrice inviata al personaggio '%c'\n",personaggioClient);
+  						 }else if(campoGioco[i+1][j] == 'o'){
+ 							campoGioco[i+1][j] = 'i';
+ 						 }
+  						write(p[clientThread].descrittore,&minuti,1);
+  						write(p[clientThread].descrittore,&secondi,1);
+  						write(p[clientThread].descrittore,&punteggioClient, 1);
   						write(p[clientThread].descrittore,campoGioco, 121);
+  						printf("-Matrice inviata al personaggio '%c'\n",personaggioClient);
   						printf("-Client numero: '%d'\n",clientThread);
   						/*				for(int i=0;i<numeroClient;i++){
   							write(p[i].descrittore,campoGioco, 121);
@@ -274,18 +310,28 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   					case 'P':
   						i = ipos(campoGioco,personaggioClient);
   						j = jpos(campoGioco,personaggioClient);
-                        printf("paccoi==%d e paccoj==%d  i==%d e j==%d\n",paccoI, paccoJ, i, j);
+                        printf("LOCAZIONI -> paccoi==%d e paccoj==%d  i==%d e j==%d\n",paccoI, paccoJ, i, j);
                         if(i==paccoI && j == paccoJ){
                                 printf("Pacco preso!\n");
+                                logging_preso(nome, i, j, punteggioClient);
                                 paccoI=paccoJ=0;
-                                locazioneI=rand()%(10)+1;
-                                locazioneJ=rand()%(10)+1;
+                                do{
+                                	locazioneI=rand()%(10)+1;
+                                	locazioneJ=rand()%(10)+1;
+                                }while(campoGioco[locazioneI][locazioneJ]== 'o' );
                                 printf("Locazione di arrivo: colonna=%d riga=%d\n",locazioneJ,locazioneI);
-
+                                
                             }else{
                                 printf("Non c'è nessun pacco da prendere!\n");
                             }
-
+                        
+                        write(p[clientThread].descrittore,&minuti,1);
+                        write(p[clientThread].descrittore,&secondi,1);
+                        write(p[clientThread].descrittore,&punteggioClient, 1);
+                        
+                        write(p[clientThread].descrittore,&locazioneI, 1);
+                        write(p[clientThread].descrittore,&locazioneJ, 1);
+                                                                        
                         write(p[clientThread].descrittore,campoGioco, 121);
                         printf("-Matrice inviata al personaggio '%c'\n",personaggioClient);
                         printf("-Client numero: '%d'\n",clientThread);
@@ -302,11 +348,13 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   						if(i==locazioneI && j==locazioneJ){
   							printf("Pacco lasciato!\n");
   							punteggioClient++;
+  							logging_posato(nome, i, j, punteggioClient);
   							printf("Punteggio attuale: %d\n",punteggioClient);
   							locazioneI=locazioneJ=0;
   							if(punteggioClient<7){
   								creaPacco(campoGioco);
   							}else{
+  								punteggioClient=0;
   								printf("-Il client %d ha vinto!\n",clientThread);
   							}
   						}else{
@@ -316,41 +364,55 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   								printf("Non puoi lasciare qui questo pacco!\n");
   							}
   						}
-
-  						 write(p[clientThread].descrittore,campoGioco, 121);
-  						 printf("-Matrice inviata al personaggio '%c'\n",personaggioClient);
-  						 printf("-Client numero: '%d'\n",clientThread);
+  						
+  						write(p[clientThread].descrittore,&minuti,1);
+  						write(p[clientThread].descrittore,&secondi,1);
+  						write(p[clientThread].descrittore,&punteggioClient, 1);
+  						write(p[clientThread].descrittore,campoGioco, 121);
+  						printf("-Matrice inviata al personaggio '%c'\n",personaggioClient);
+  						printf("-Client numero: '%d'\n",clientThread);
 
 
   						break;
+  						
   					case 'T':
   						/*RICHIESTA TEMPO*///////////////////////////
-  						write(p[clientThread].descrittore,&ore,1);
+  						//write(p[clientThread].descrittore,&ore,1);
   						write(p[clientThread].descrittore,&minuti,1);
   						write(p[clientThread].descrittore,&secondi,1);
+  						
+  						write(p[clientThread].descrittore,&punteggioClient, 1);
+  						write(p[clientThread].descrittore,campoGioco, 121);
+  						printf("-Matrice inviata al personaggio '%c'\n",personaggioClient);
+  					  	printf("-Client numero: '%d'\n",clientThread);
+
   						break;
 
   					case 'U':
   						/*LISTA Client connessi*///////////////////////////////
-  						for(int i=0; i<MAX; i++){
-  							for(int j=0; j<MAX; j++){
-  								if(cercaPersonaggio(campoGioco[i][j]) == 1 && campoGioco[i][j] != 'o'){
-  									personaggiConnessi[k] = campoGioco[i][j];
-  									k++;
-  								}
-  							}
-  						}
-  						personaggiConnessi[k] = '\0';
-  						write(p[clientThread].descrittore,personaggiConnessi,strlen(personaggiConnessi));
-  						k=0;
+  						
+  						write(p[clientThread].descrittore,username_globali,124/*strlen(personaggiConnessi)*/);
+  						write(p[clientThread].descrittore,&minuti,1);
+  						write(p[clientThread].descrittore,&secondi,1);
+  						write(p[clientThread].descrittore,&punteggioClient, 1);
+  						write(p[clientThread].descrittore,campoGioco, 121);
+  						printf("-Matrice inviata al personaggio '%c'\n",personaggioClient);
+  						printf("-Client numero: '%d'\n",clientThread);
+  					
   						break;
+  					
   					case 'X':
   						/*DISCONNESSIONE ACCOUNT*//////////////////////////////////
   						i = ipos(campoGioco,personaggioClient);
   					  	j = jpos(campoGioco,personaggioClient);
-  						campoGioco[i][j] = ultimoCarattere;
-  						logging_exit(username);
+  					    printf("-[%s]Richiesta disconnessione in corso... \n",p[clientThread].indirizzo);
+  					    campoGioco[i][j] = ultimoCarattere;
+  						logging_exit(nome);
+  						cancella_online(username);
+  						printf("-[%s]Disconnesso.\n",p[clientThread].indirizzo);
   						pthread_exit(0);
+  						printf("-[%s]Disconnesso.\n",p[clientThread].indirizzo);
+
   						break;
 
   					default:
@@ -376,7 +438,7 @@ int main(int argc, char **argv) {
 	int socketDescriptor; //informazioni del server
 	int clientConnectionDescriptor; //info sul client arrivate tramite l ACCEPT
 	pthread_t th1; //thread dedicato al timer di gioco
-	pthread_t th2;
+	pthread_t th2; //thread dedicato al gestione di ogni client
     
 	//genero il campo da gioco che deve essere uguale per tutti i client
     creaCampo(campoGioco);
@@ -416,17 +478,15 @@ int main(int argc, char **argv) {
 			exit(0);
 		}
 		
-		//creo il thread per il timer solo dopo la connessione del primo client
-
-
 		//memorizzo i dati del client connesso nella struttura globale
 		p[numeroClient].descrittore=clientConnectionDescriptor;
 		strcpy(p[numeroClient].indirizzo,inet_ntoa(indirizzoClient.sin_addr));
 		numeroClient++;
 		
+		//creo il thread per il timer solo dopo la connessione del primo client
 		if(numeroClient==1){
 					pthread_create(&th1,NULL,timerThread, NULL);
-				}
+		}
 
 		//creo il thread per gestire il singolo client
 		pthread_create(&th2,NULL,gestioneClientThread,NULL);
@@ -536,7 +596,7 @@ int ipos(char m[][MAX],char personaggio){
 
 	for(i=0; i<MAX; i++){
 		for(j=0; j<MAX; j++){
-			if(m[i][j] == personaggio){ //bisogna inserire personaggio corrente al posto della a se no funziona solo cn il primo personaggio
+			if(m[i][j] == personaggio){ 
 				return i;			
 			}
 
@@ -636,29 +696,104 @@ int cercaPersonaggio(char personaggio){
 	return 0;
 }
 
-void logging_log(char ip[]){
+void logging_log(char username[]){
     FILE *fp;
     time_t ora;
     ora = time(NULL);
     fp=fopen("logging.txt","a"); //apro il file
+    
     if(fp){
-            fprintf(fp, "Login: %s %s\n", ip,asctime(localtime(&ora)));
+            fprintf(fp, "Login: %s %s\n", username,asctime(localtime(&ora)));
     }else{
         printf("\nErrore nella scrittura del file!\n");
     }
     fclose(fp);
 }
 
-
-void logging_exit(char ip[]){
+void logging_exit(char username[]){
     FILE *fp;
     time_t ora;
     ora = time(NULL);
     fp=fopen("logging.txt","a"); //apro il file
     if(fp){
-            fprintf(fp, "Exit: %s %s\n", ip,asctime(localtime(&ora)));
+            fprintf(fp, "Exit: %s %s\n", username,asctime(localtime(&ora)));
     }else{
         printf("\nErrore nella scrittura del file!\n");
     }
     fclose(fp);
+}
+
+void logging_posato(char username[], int i, int j, int punteggio){
+
+	FILE *fp;
+    time_t ora;
+    ora = time(NULL);
+    fp=fopen("logging.txt","a"); //apro il file
+    if(fp){
+            fprintf(fp, "Nome utente: %s Azione: posa pacco Locazione: %d,%d Punteggio: %d\n", username,i,j,punteggio);
+    }else{
+        printf("\nErrore nella scrittura del file!\n");
+    }
+    fclose(fp);
+}
+
+void logging_preso(char username[], int i, int j, int punteggio){
+
+	FILE *fp;
+    time_t ora;
+    ora = time(NULL);
+    fp=fopen("logging.txt","a"); //apro il file
+    if(fp){
+            fprintf(fp, "Nome utente: %s Azione: prendi pacco Locazione: %d,%d Punteggio: %d\n", username,i,j,punteggio);
+    }else{
+        printf("\nErrore nella scrittura del file!\n");
+    }
+    fclose(fp);
+}
+
+void salva_username(char username[]){
+	int i=0;
+
+	while(username[i] != '-'){
+		username_globali[q] = username[i]; //array di username online
+
+		nome[i] = username[i]; //distinguo l'username dalla password
+		q++;
+		i++;
+	}
+	
+	nome[i] = '\0';
+	username_globali[q] = ',';
+	q++;
+	username_globali[q] = '\0';
+
+}
+
+void cancella_online(char username[]){
+
+	int i=0, j=0, tmp;
+	int delete = 0;
+
+	while(username_globali[i] != '\0' && delete != 1){ //cancella l'username dalla lista
+		if(username_globali[i] == username[j]){
+			tmp = i;
+		}
+		while(username_globali[i] == username[j]){
+			i++;
+			j++;
+
+			if(username_globali[i] == ','){
+				delete = 1;
+			}
+		}
+		i++;
+		j=0;
+	}
+
+	
+	for(i=tmp; username_globali[i] != ','; i++){
+		username_globali[i] = '*';
+	}
+
+	username_globali[i] = '*';
 }
