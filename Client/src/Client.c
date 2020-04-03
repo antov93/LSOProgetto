@@ -24,19 +24,27 @@
 #define MAX 11
 
 int socketClientDescriptor; //variabile globale,descrittore del socket locale del client
-int x;//varibile globale per la sincronizzazione dei thread
-int paccoPreso= 0; //variabile booleana che indica qnd è stato premuto il pulsante p
+int x=1;//varibile globale per la sincronizzazione dei thread
+int mutex;
+int paccoPreso= 0; //variabile che indica qnd è stato premuto il tasto p
+int paccoLasciato= 0; ////variabile che indica qnd è stato premuto il tasto l
 int lista=0;  //variabile booleana lista
-int fine_partita=0;
+int disconnesso=0;
 
 void *stampaMatriceThread(void *arg){
-	x=1;
+
 	char buffer[121];
 	int punteggio=0;
+	int vittoria=0;
+	char vincente[30];
 
-	while(fine_partita==0){
-			if(x==1){
-				
+	mutex=1;
+
+	while(disconnesso==0){
+
+
+			if(mutex==1){
+
 				if(lista == 1){
 					char utenti[124];//buffer usato qnd devo eggere la lista utenti
 					read(socketClientDescriptor,utenti,124);
@@ -52,19 +60,29 @@ void *stampaMatriceThread(void *arg){
 					lista = 0;
 				}
 				
-				int tempo[3];
 				//leggo il tempo restante					
-				//read(socketClientDescriptor,&tempo[0],1);
+				int tempo[3];
 				read(socketClientDescriptor,&tempo[1],1);
 				read(socketClientDescriptor,&tempo[2],1);
-				printf("\nTEMPO RESTANTE: %dm:%ds\n",tempo[1],tempo[2]);
+				printf("\nTEMPO RESTANTE: %d m:%d s\n",tempo[1],tempo[2]);
 									
 				//leggo il punteggio del giocatore
 				read(socketClientDescriptor,&punteggio,1);
 				printf("Punteggio: %d\n",punteggio);
 				
+			//	read(socketClientDescriptor,&vittoria,1);
+			//	read(socketClientDescriptor,vincente,30);
+
+				//if(vittoria>0)printf("2vittoria: %d",vittoria);
+			//	if(vittoria==1){
+			//		printf("L'utente %s ha raccolto 7 pacchi e ha vinto!!\n",vincente);
+			//		printf("Nuova partita iniziata!");
+///
+//
+			//	}
+
 				//se ha cliccato p leggo le locazioni di arrivo
-				if(paccoPreso==1){
+				if(paccoPreso==1 ){
 					int coordinateLocazioni[2];
 					char temp;
 					read(socketClientDescriptor,&coordinateLocazioni[0],1);
@@ -73,13 +91,33 @@ void *stampaMatriceThread(void *arg){
 						printf("Non ce nulla da raccogliere qui!");
 					}else{
 						printf("Pacco preso!");
-						temp = coordinateLocazioni[0]+48 ;
+						temp = coordinateLocazioni[0] ; //sto usando la i
+						temp = temp+48 ; //sto usando la i
 						temp=temp+16;
-						printf("Destinazione: %c (riga)  %d(colonna )",temp,coordinateLocazioni[1]-1);
+						if(temp==74){
+							temp=76;
+						}
+						printf("Destinazione-> %c %d",temp,coordinateLocazioni[1]-1);
 					}		
-				paccoPreso=0;
+					paccoPreso=0;
 				}
-				
+
+				if(paccoLasciato==1 ){
+					int preso=0;
+					char temp;
+					read(socketClientDescriptor,&preso,1);
+					if(preso==1 ){
+						printf("Pacco lasciato!");
+					}
+					if(preso==2){
+						printf("Non hai nessun pacco da lasciare!");
+					}
+					if(preso==3){
+						printf("Non puoi lasciare qui questo pacco!");
+					}
+					paccoLasciato=0;
+				}
+
 				//leggo la matrice del gioco e visualizzo il quadro
 				read(socketClientDescriptor,buffer,121);
 				//stampo la matrice
@@ -103,28 +141,25 @@ void *stampaMatriceThread(void *arg){
 						}
 					 }
 				}
-			
-				x=2;
-			
+
+				mutex=2;
+
 			}//fine if(x=1)
 		}
-					
-	
 	pthread_exit(0);
 }
-
 
 void *leggiComandoThread(void *arg){
 
 
-		while(fine_partita==0){
+		while(disconnesso==0){
 
-			if(x==2){
+			if(mutex==2){
 				char messaggio[1];
 			
 				//mi metto in attesa di un nuovo messaggio/comando
 				do{
-					printf("\nscrivi un messaggio da inviare al server: ");
+					printf("\ninvia un comando: ");
 					scanf("%s",messaggio);
 				}while(messaggio[0] != 'w' &&
 					messaggio[0] !='d' &&
@@ -133,30 +168,30 @@ void *leggiComandoThread(void *arg){
 					messaggio[0] !='p' &&
 					messaggio[0] !='x' &&
 					messaggio[0] !='u' &&
-					messaggio[0] !='l' &&
-					messaggio[0] !='t');
-				
+					messaggio[0] !='l' );
 				
 				if(messaggio[0] == 'p')paccoPreso=1;
 
-				if(messaggio[0] == 'x'){
-					printf("\nDISCONNESSO\n");
-					fine_partita = 1;
-				}
+				if(messaggio[0] == 'l')paccoLasciato=1;
 
 				if(messaggio[0] == 'u')lista=1;
 
 				//scrivo il comando sul socket
 				write(socketClientDescriptor,messaggio,sizeof(messaggio));
-				x=1;
-			}
-			//dopo aver mandato il comando devo leggere la nuova matrice con lo spostamento
-			//e lo faccio nel thread che stampa la matrice
 
+				if(messaggio[0] == 'x'){
+					printf("\n***DISCONNESSO\n");
+					disconnesso=1;
+					mutex=0;
+				}else{
+					mutex=1;
+				}
+
+			}//fine if
+	//dopo aver mandato il comando devo leggere la nuova matrice con lo spostamento
+	//e lo faccio nel thread che stampa la matrice
 		}//fine while
-
-		pthread_exit(0);	
-		
+	pthread_exit(0);
 }//fine funzioneThread
 
 //da cambiare con int main(int argc, char *argv[]) {  ???
@@ -175,7 +210,7 @@ int main(void) {
 		//struttura alla quale mi connetto(il server cioè)
 		serverDescriptor.sin_family=AF_INET;
 		serverDescriptor.sin_port=htons(PORTA);
-		inet_aton("192.168.1.11", &serverDescriptor.sin_addr);
+		inet_aton("192.168.1.14", &serverDescriptor.sin_addr);
 		    
 		//creo un socket locale per il client
 		socketClientDescriptor=socket(AF_INET,SOCK_STREAM,0);
@@ -271,9 +306,9 @@ int main(void) {
 		if( pthread_create(&th2, NULL, leggiComandoThread, NULL) != 0 )
 			printf("Failed to create thread 2\n");
 
-		pthread_join(th1,NULL);
 		pthread_join(th2,NULL);
-
+		pthread_join(th1,NULL);
+		printf("Fine Programma.\n");
 
 		return 0;
 }
