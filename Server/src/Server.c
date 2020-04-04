@@ -34,14 +34,17 @@ parametriClient p[100]; //variabile globale che rappresenta tutti i client che s
 int numeroClient=0; //variabile globale,indice dei client connessi
 int clientConnessi=0; //var globale che indica attualmente il numero di client connessi
 char campoGioco[MAX][MAX]; //variabile globale, tutti i client lavorano sullo stesso campo 
-char personaggi[]={'a','b','c','d','e','f','g','h','i','l','m','n','o','p','q','r','s','t','u','v','z'};
+char personaggi[]={'a','b','c','d','e','f','g','h','l','m','n','p','q','r','s','t','u','v','z'};
 int personaggioCorrente=0; //indica il personaggio a cui siamo arrivati 
-int ore = 0, minuti = 14, secondi = 10; //var globale tempo
+int ore = 0, minuti = 5, secondi = 5; //var globale tempo
 char username_globali[124]; //ci inserisco gli user dei giocatori online
 char nome[20];
 int q = 0; //indice variabile username_globali
 char clientVincente[30];
-int vittoria=0;
+int vittoriaVettore[100];
+//int vittoriaGlobale=0;
+int punteggioClient[100];//ci memorizzo i punteggi dei vari client in gioco
+
 
 void creaCampo(char m[MAX][MAX]);
 void creaOstacoli(char m[MAX][MAX]);
@@ -59,6 +62,8 @@ void cancella_online(char username[]);
 void logging_posato(char username[], int i, int j, int punteggio);
 void logging_preso(char username[], int i, int j, int punteggio);
 void resetPersonaggiConnessi();
+void inviaVittoria(int id);
+void azzeraPunteggi();
 
 void *timerThread(void *arg){
 
@@ -88,13 +93,12 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   			char personaggioClient;//personaggio associato a client in questione
   			int locazioneI=0;
   			int locazioneJ=0; //coordinate della locazione di arrivo di un pacco
-  			int punteggioClient=0; //numero pacchi posati
   			char ultimoCarattere = '*'; //variabile temporanea per la disconnessione
   			int disconnesso=0;
-
-
+  			int vittoriaPersonale=0;
   			char personaggiConnessi[MAX]; //vettore contenente tutti i caratteri connessi
   			int k=0;
+  			punteggioClient[idClient]=0; //numero pacchi posati
 
   			printf("**Richiesta connessione dal client %s\n",p[idClient].indirizzo);
   			
@@ -149,10 +153,11 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   			//quadro di gioco il tempo  e il punteggio attuale solo al client connesso
   			write(p[idClient].descrittore,&minuti,1);
   			write(p[idClient].descrittore,&secondi,1);
-  			write(p[idClient].descrittore,&punteggioClient, 1);
+  			write(p[idClient].descrittore,&punteggioClient[idClient], 1);
 
-  			//write(p[idClient].descrittore,&vittoria,1);
-  			//write(p[idClient].descrittore,clientVincente,30);
+
+  			write(p[idClient].descrittore,&vittoriaVettore[idClient],1);
+
 
   			write(p[idClient].descrittore,campoGioco,121);
   			/*			for(int i=0;i<numeroClient;i++){
@@ -204,10 +209,10 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   						
   						write(p[idClient].descrittore,&minuti,1);
   						write(p[idClient].descrittore,&secondi,1);
-  						write(p[idClient].descrittore,&punteggioClient, 1);
+  						write(p[idClient].descrittore,&punteggioClient[idClient], 1);
 
-  					//	write(p[idClient].descrittore,&vittoria,1);
-  					//	write(p[idClient].descrittore,clientVincente,30);
+  						write(p[idClient].descrittore,&vittoriaVettore[idClient],1);
+
 
   						write(p[idClient].descrittore,campoGioco, 121);
   					  	printf("-[%s]Matrice inviata\n",p[idClient].indirizzo);
@@ -239,10 +244,11 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   						
   						write(p[idClient].descrittore,&minuti,1);
   						write(p[idClient].descrittore,&secondi,1);
-  						write(p[idClient].descrittore,&punteggioClient, 1);
+  						write(p[idClient].descrittore,&punteggioClient[idClient], 1);
 
-  						//write(p[idClient].descrittore,&vittoria,1);
-  						//write(p[idClient].descrittore,clientVincente,30);
+
+  						write(p[idClient].descrittore,&vittoriaVettore[idClient],1);
+
 
   						write(p[idClient].descrittore,campoGioco, 121);
   						printf("-[%s]Matrice inviata\n",p[idClient].indirizzo);
@@ -273,14 +279,15 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   						
   						write(p[idClient].descrittore,&minuti,1);
   						write(p[idClient].descrittore,&secondi,1);
-  						write(p[idClient].descrittore,&punteggioClient, 1);
+  						write(p[idClient].descrittore,&punteggioClient[idClient], 1);
 
-  					//	write(p[idClient].descrittore,&vittoria,1);
-  						//write(p[idClient].descrittore,clientVincente,30);
+
+  						write(p[idClient].descrittore,&vittoriaVettore[idClient],1);
+
 
   						write(p[idClient].descrittore,campoGioco, 121);
   						printf("-[%s]Matrice inviata\n",p[idClient].indirizzo);
-  						vittoria=0;
+  						//vittoriaGlobale=0;
 
   						break;
 
@@ -307,10 +314,11 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
  						 }
   						write(p[idClient].descrittore,&minuti,1);
   						write(p[idClient].descrittore,&secondi,1);
-  						write(p[idClient].descrittore,&punteggioClient, 1);
+  						write(p[idClient].descrittore,&punteggioClient[idClient], 1);
 
-  					//	write(p[idClient].descrittore,&vittoria,1);
-  					//	write(p[idClient].descrittore,clientVincente,30);
+
+  						write(p[idClient].descrittore,&vittoriaVettore[idClient],1);
+
 
   						write(p[idClient].descrittore,campoGioco, 121);
   						printf("-[%s]Matrice inviata\n",p[idClient].indirizzo);
@@ -322,7 +330,7 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   						j = jpos(campoGioco,personaggioClient);
                         if(i==paccoI && j == paccoJ){
                         	printf("-[%s]Pacco preso!\n",p[idClient].indirizzo);
-                        	logging_preso(nome, i, j, punteggioClient);
+                        	logging_preso(nome, i, j, punteggioClient[idClient]);
                             paccoI=paccoJ=0;
                             do{
                             	locazioneI=rand()%(10)+1;
@@ -335,13 +343,14 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
                         
                         write(p[idClient].descrittore,&minuti,1);
                         write(p[idClient].descrittore,&secondi,1);
-                        write(p[idClient].descrittore,&punteggioClient, 1);
+                        write(p[idClient].descrittore,&punteggioClient[idClient], 1);
 
-                      //  write(p[idClient].descrittore,&vittoria,1);
-                      //  write(p[idClient].descrittore,clientVincente,30);
 
-                        write(p[idClient].descrittore,&locazioneI, 1);
-                        write(p[idClient].descrittore,&locazioneJ, 1);
+                        write(p[idClient].descrittore,&vittoriaVettore[idClient],1);
+
+
+                        if( vittoriaVettore[idClient] != 1 )write(p[idClient].descrittore,&locazioneI, 1);
+                        if( vittoriaVettore[idClient] != 1 )write(p[idClient].descrittore,&locazioneJ, 1);
                         write(p[idClient].descrittore,campoGioco, 121);
                         printf("-[%s]Matrice inviata\n",p[idClient].indirizzo);
 
@@ -354,21 +363,28 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   						if(i==locazioneI && j==locazioneJ){
   							printf("-[%s]Pacco lasciato!\n",p[idClient].indirizzo);
   							preso=1;
-  							punteggioClient++;
-  							logging_posato(nome, i, j, punteggioClient);
-  							printf("-[%s]Punteggio attuale: %d\n",p[idClient].indirizzo,punteggioClient);
+  							punteggioClient[idClient]++;
+  							logging_posato(nome, i, j, punteggioClient[idClient]);
+  							printf("-[%s]Punteggio attuale: %d\n",p[idClient].indirizzo,punteggioClient[idClient]);
   							locazioneI=locazioneJ=0;
-  							if(punteggioClient<3){
+  							if(punteggioClient[idClient]<3){
   								creaPacco(campoGioco);
   							}else{
-  								punteggioClient=0;
+  								azzeraPunteggi();
   								printf("-Il client %d ha vinto la partita!\n",idClient);
-  					/*			vittoria=1;
-  								for(int i=0;i<30;i++){
+  								printf("\nVittoria: %d",vittoriaVettore[idClient]);
+  								inviaVittoria(idClient);
+  								//vittoriaGlobale=1;
+  								printf("\nVittoria: %d",vittoriaVettore[idClient]);
+  					/*			for(int i=0;i<30;i++){
   									clientVincente[i]=username[i];
   								}*/
-								//resetPersonaggiConnessi();
-								//startTempo();
+								resetPersonaggiConnessi();
+								minuti=5;
+								secondi=5;
+
+
+
   							}
   						}else{
   							if(locazioneI==0 && locazioneJ==0 ){
@@ -383,16 +399,19 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
 
   						write(p[idClient].descrittore,&minuti,1);
   						write(p[idClient].descrittore,&secondi,1);
-  						write(p[idClient].descrittore,&punteggioClient,1);
+  						write(p[idClient].descrittore,&punteggioClient[idClient],1);
 
-  					//	write(p[idClient].descrittore,&vittoria,1);
-  					//	write(p[idClient].descrittore,clientVincente,30);
+  						//printf("\nVittoria: %d",vittoriaVettore[idClient]);
+  						write(p[idClient].descrittore,&vittoriaVettore[idClient],1);
 
-  						write(p[idClient].descrittore,&preso, 1);
+
+
+  						if( vittoriaVettore[idClient] != 1 && vittoriaVettore[idClient] !=2 )write(p[idClient].descrittore,&preso, 1);
   						write(p[idClient].descrittore,campoGioco, 121);
   						printf("-[%s]Matrice inviata\n",p[idClient].indirizzo);
   						preso=0;
-  						vittoria=0;
+  						printf("\nVittoria: %d",vittoriaVettore[idClient]);
+
   						break;
 
   					case 'U':
@@ -400,10 +419,11 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
   						write(p[idClient].descrittore,username_globali,124);
   						write(p[idClient].descrittore,&minuti,1);
   						write(p[idClient].descrittore,&secondi,1);
-  						write(p[idClient].descrittore,&punteggioClient, 1);
+  						write(p[idClient].descrittore,&punteggioClient[idClient], 1);
 
-  						//write(p[idClient].descrittore,&vittoria,1);
-  					//	write(p[idClient].descrittore,clientVincente,30);
+
+  						write(p[idClient].descrittore,&vittoriaVettore[idClient],1);
+
 
   						write(p[idClient].descrittore,campoGioco, 121);
   						printf("-[%s]Matrice inviata\n",p[idClient].indirizzo);
@@ -435,7 +455,8 @@ void *gestioneClientThread(void * arg){//devo passare  in arg il client connecti
 
   					}//fine switch
 
-  				printf("Attendo altre richieste...\n");
+  					vittoriaVettore[idClient]=0;
+  					printf("Attendo altre richieste...\n");
 
             }//fine while dei comandi(cioè accetto sempre nuovi comandi finchè nn finisco il gioco)
 
@@ -513,6 +534,25 @@ int main(int argc, char **argv) {
 	//pthread_join(th2,NULL);
 	return 0;
 
+}
+
+void azzeraPunteggi(){
+	int i;
+	for(i=0;i<100;i++)
+		punteggioClient[i]=0;
+
+}
+
+//pongo a 1 gli indicatori di ogni client tranne qll che ha vinto
+void inviaVittoria(int id){
+	int x;
+	for(x=0;x<100;x++){
+		if(x==id){
+			vittoriaVettore[x]=2;
+		}else{
+			vittoriaVettore[x]=1;
+		}
+	}
 }
 
 //genero una matrice 11x11 dove la riga e la colonna zero rappresentano le coordinate
@@ -718,11 +758,11 @@ void resetPersonaggiConnessi(){
 	int i,j;
 	int x=0; //contatore dei char dentro personaggi[]
 	int z=0; //contatore dei char connessi
-	char temp[21];
+	char temp[20];
 
 	//cerco i personaggi ancora connessi (cioè presenti in matrice)
 	//e li salvo tutti in un array temporaneo
-	for(x=0;x<21;x++){
+	for(x=0;x<20;x++){
 		for(i=1; i<MAX; i++){
 				for(j=1; j<MAX; j++){
 						if(campoGioco[i][j]==personaggi[x]){
@@ -734,6 +774,7 @@ void resetPersonaggiConnessi(){
 				}
 			}
 	}
+
 	creaCampo(campoGioco);
 
 	//inserisco i personaggi salvati nel nuovo campo
@@ -749,6 +790,7 @@ void resetPersonaggiConnessi(){
 			}
 		}while(cont<1);
 	}
+
 	creaOstacoli(campoGioco);
 	for(i=0;i<z;i++){
 		creaPacco(campoGioco);

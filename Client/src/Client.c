@@ -36,7 +36,6 @@ void *stampaMatriceThread(void *arg){
 	char buffer[121];
 	int punteggio=0;
 	int vittoria=0;
-	char vincente[30];
 
 	mutex=1;
 
@@ -64,22 +63,35 @@ void *stampaMatriceThread(void *arg){
 				int tempo[3];
 				read(socketClientDescriptor,&tempo[1],1);
 				read(socketClientDescriptor,&tempo[2],1);
-				printf("\nTEMPO RESTANTE: %d m:%d s\n",tempo[1],tempo[2]);
+				printf("\nTEMPO RESTANTE: %dm:%ds\n",tempo[1],tempo[2]);
 									
 				//leggo il punteggio del giocatore
 				read(socketClientDescriptor,&punteggio,1);
 				printf("Punteggio: %d\n",punteggio);
 				
-			//	read(socketClientDescriptor,&vittoria,1);
-			//	read(socketClientDescriptor,vincente,30);
 
-				//if(vittoria>0)printf("2vittoria: %d",vittoria);
-			//	if(vittoria==1){
-			//		printf("L'utente %s ha raccolto 7 pacchi e ha vinto!!\n",vincente);
-			//		printf("Nuova partita iniziata!");
-///
-//
-			//	}
+
+				read(socketClientDescriptor,&vittoria,1);
+
+				if(vittoria==1){
+					printf("Qualcuno ha raccolto tutti i pacchi e ha vinto!!\n");
+					printf("Start nuova partita fai la tua mossa...\n");
+					//punteggio=0;
+					paccoPreso=0;
+					paccoLasciato=0;
+				}
+
+				if(vittoria==2){
+					printf("!!!!!Hai raccolto tutti i pacchi!!!!!\n");
+					printf("!!!HAI VINTO!!!\n");
+					printf("Start nuova partita fai la tua mossa...\n");
+
+					//punteggio=0;
+					paccoPreso=0;
+					paccoLasciato=0;
+
+				}
+
 
 				//se ha cliccato p leggo le locazioni di arrivo
 				if(paccoPreso==1 ){
@@ -97,7 +109,7 @@ void *stampaMatriceThread(void *arg){
 						if(temp==74){
 							temp=76;
 						}
-						printf("Destinazione-> %c %d",temp,coordinateLocazioni[1]-1);
+						printf("Destinazione-> %c%d",temp,coordinateLocazioni[1]-1);
 					}		
 					paccoPreso=0;
 				}
@@ -105,6 +117,9 @@ void *stampaMatriceThread(void *arg){
 				if(paccoLasciato==1 ){
 					int preso=0;
 					char temp;
+					//read(socketClientDescriptor,&vittoria,1);
+					//if(vittoria==1)printf("\nVittoria: %d",vittoria);
+
 					read(socketClientDescriptor,&preso,1);
 					if(preso==1 ){
 						printf("Pacco lasciato!");
@@ -115,6 +130,8 @@ void *stampaMatriceThread(void *arg){
 					if(preso==3){
 						printf("Non puoi lasciare qui questo pacco!");
 					}
+
+
 					paccoLasciato=0;
 				}
 
@@ -210,7 +227,7 @@ int main(void) {
 		//struttura alla quale mi connetto(il server cioè)
 		serverDescriptor.sin_family=AF_INET;
 		serverDescriptor.sin_port=htons(PORTA);
-		inet_aton("192.168.1.14", &serverDescriptor.sin_addr);
+		inet_aton("192.168.1.4", &serverDescriptor.sin_addr);
 		    
 		//creo un socket locale per il client
 		socketClientDescriptor=socket(AF_INET,SOCK_STREAM,0);
