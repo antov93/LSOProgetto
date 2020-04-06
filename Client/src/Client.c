@@ -30,13 +30,14 @@ int paccoPreso= 0; //variabile che indica qnd è stato premuto il tasto p
 int paccoLasciato= 0; ////variabile che indica qnd è stato premuto il tasto l
 int lista=0;  //variabile booleana lista
 int disconnesso=0;
+int partiteVinte=0;
 
 void *stampaMatriceThread(void *arg){
 
 	char buffer[121];
 	int punteggio=0;
 	int vittoria=0;
-
+	char user[20];
 	mutex=1;
 
 	while(disconnesso==0){
@@ -64,19 +65,18 @@ void *stampaMatriceThread(void *arg){
 				read(socketClientDescriptor,&tempo[1],1);
 				read(socketClientDescriptor,&tempo[2],1);
 				printf("\nTEMPO RESTANTE: %dm:%ds\n",tempo[1],tempo[2]);
-									
+
+				printf("Partite vinte: %d\n",partiteVinte);
+
 				//leggo il punteggio del giocatore
 				read(socketClientDescriptor,&punteggio,1);
 				printf("Punteggio: %d\n",punteggio);
 				
-
-
 				read(socketClientDescriptor,&vittoria,1);
 
 				if(vittoria==1){
 					printf("Qualcuno ha raccolto tutti i pacchi e ha vinto!!\n");
-					printf("Start nuova partita fai la tua mossa...\n");
-					//punteggio=0;
+					printf("Start nuova partita fai la tua mossa...");
 					paccoPreso=0;
 					paccoLasciato=0;
 				}
@@ -84,14 +84,31 @@ void *stampaMatriceThread(void *arg){
 				if(vittoria==2){
 					printf("!!!!!Hai raccolto tutti i pacchi!!!!!\n");
 					printf("!!!HAI VINTO!!!\n");
-					printf("Start nuova partita fai la tua mossa...\n");
-
-					//punteggio=0;
+					printf("Start nuova partita fai la tua mossa...");
+					partiteVinte++;
 					paccoPreso=0;
 					paccoLasciato=0;
 
 				}
 
+				if(vittoria==3){
+					printf("!!!TEMPO SCADUTO!!!\n");
+					printf("Non hai vinto, ritenta!\n");
+					printf("Start nuova partita fai la tua mossa...");
+					paccoPreso=0;
+					paccoLasciato=0;
+				}
+
+				if(vittoria==4){
+					printf("!!!TEMPO SCADUTO!!!\n");
+					printf("Hai raccolto piu pacchi di tutti!\n");
+					printf("!!!HAI VINTO!!!\n");
+					printf("Start nuova partita fai la tua mossa...");
+					partiteVinte++;
+					paccoPreso=0;
+					paccoLasciato=0;
+
+				}
 
 				//se ha cliccato p leggo le locazioni di arrivo
 				if(paccoPreso==1 ){
@@ -227,7 +244,7 @@ int main(void) {
 		//struttura alla quale mi connetto(il server cioè)
 		serverDescriptor.sin_family=AF_INET;
 		serverDescriptor.sin_port=htons(PORTA);
-		inet_aton("192.168.1.4", &serverDescriptor.sin_addr);
+		inet_aton("192.168.1.10", &serverDescriptor.sin_addr);
 		    
 		//creo un socket locale per il client
 		socketClientDescriptor=socket(AF_INET,SOCK_STREAM,0);
